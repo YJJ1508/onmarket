@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ON-MARKET</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Firebase and Font Awesome Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://kit.fontawesome.com/e1a2c43e41.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link rel="icon" href="/images/5572662.png" type="/images/5572662.png">
+    <!-- Your custom CSS -->
+    <link rel="stylesheet" href="../css/myprofile.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header" style="margin-right: 15px;">
+        <div class="header_wrap">
+            <div class="header_content">
+                <img src="/images/5572662.png" style="width: 80px; margin-top: 8px; padding-right: 10px;">
+                <h1 style="margin-top: 19px; font-size: 27px; color: #f4511e; font-weight: bold;"><a href="/"
+                        style="color: #f4511e; text-decoration: none;">ON</a></h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Section -->
+    <section class="profile-section" style="zoom: 110%;">
+        <div class="container">
+            <p style="font-weight: bold; font-family: 'KCC-Hanbit', sans-serif;">My Profile</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div id="user-info">
+                        <!-- User Profile Information will be displayed here -->
+                    </div>
+                    <button id="delete-account-btn">계정 삭제</button>
+                    <div id="user-order">
+                        <!--주문상품-->
+
+                    </div>
+                    <button class="button_order">상세페이지 이동</button>
+                    <div id="user-auction">
+                        <!--낙찰상품-->
+                    </div>
+                    <button class="button_auction">상세페이지 이동</button>
+                </div>
+                <div class="col-md-6">
+                    <div id="user-posts">
+                        <!-- User Posts will be displayed here -->
+                    </div>
+
+                    <div id="user-interest">
+                        <!-- User interest will be displayed here -->
+                    </div>
+
+                    <div class="col" style="box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border-radius: 8px;">
+                        <!-- 채팅 목록을 표시할 요소 -->
+                        <ul id="chatList" class="list-group">
+                            <!-- 채팅 내용이 여기에 추가됩니다 -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Firebase Configuration and Script -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+
+
+        // Function to fetch user profile information
+        function fetchUserProfile() {
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    // Display user's name
+                    db.collection("user-id").doc(user.uid).get().then((doc) => {
+                        if (doc.exists) {
+                            const userName = doc.data().name;
+                            const userEmail = doc.data().email; // 이메일 가져오기
+                            // 사용자 정보를 표시하는 HTML 업데이트
+                            document.getElementById('user-info').innerHTML = `
+                            <div class="image-container">
+                                <img src="images/Smart Men.jpg" class="product-image">
+                            </div>
+                            <p style="text-align: center; font-family: 'KCC-Hanbit', sans-serif;"><strong>${userName}</strong></p>
+                            <p style="text-align: center;">이메일: ${userEmail}</p>
+                                                                            `;
+                        } else {
+                            console.log("No such document!");
+                        }
+                    }).catch((error) => {
+                        console.log("Error getting document:", error);
+                    });
+
+
+                    db.collection("order").where("구매자_id", "==", user.uid).get().then((result) => {
+                        var 템플릿 = "<h3 style='padding: 10px;  border-top-left-radius: 8px; border-top-right-radius: 8px; font-weight: bold; font-size: 22px; background-color: #fa7575;'>주문 상품</h3>";
+
+                        if (result.empty) {
+                            템플릿 += "<div style='text-align: center; padding: 20px; font-size: 18px;'>주문 상품이 없습니다.</div>";
+                        } else {
+                            result.forEach((doc) => {
+                                var 링크 = (doc.data().타입 === "auction") ? `/detail_auction.html?id=${doc.data().상품_id}` : `/detail.html?id=${doc.data().상품_id}`;
+
+                                템플릿 += `
+                                    <div class="show_order" id="orders" style="display: flex; cursor: pointer;" onclick="location.href='${링크}'">
+                                        <a href=${링크}>
+                                            <img src="${doc.data().이미지1}" style="width: 50px; margin-bottom: 10px; margin-left: 10px; height: 50px; margin-top: 10px; border-radius: 10px; padding-left: 5px;">
+                                        </a>    
+                                        <div class="order_details1" style="display: flex; align-items: center; padding-left: 10px;">
+                                            <p>${doc.data().상품명}</p>
+                                        </div>
+                                    </div>`;
+                            });
+                        }
+                        document.getElementById('user-order').innerHTML = 템플릿;
+                    })
+                    $('.button_order').click(function () {
+                        window.location.href = '/order.html';
+                    });
+
+
+                    let orderDB = db.collection("order").get(); // 주문 데이터베이스 조회 Promise
+                    var 템플릿 = "<h3 style='padding: 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; font-weight: bold; font-size: 22px; background-color: #fa7575;'>낙찰 상품</h3>";
+
+                    db.collection("auction").where("경매상태", "==", "종료").get().then((querySnapshot) => {
+                        orderDB.then(orderDB => { // 주문 데이터베이스 결과를 기다림
+                            querySnapshot.forEach((doc) => {
+                                let isPaid = false; // 결제된 상품인지 확인하는 플래그
+                                orderDB.docs.forEach((order) => {
+                                    if (order.data().상품_id === doc.id) {
+                                        isPaid = true; // 결제된 상품이라면 플래그를 true로 변경
+                                    }
+                                });
+                                if (!isPaid && doc.data().낙찰자id === user.uid) { // 결제되지 않았고, 낙찰자가 현재 사용자라면
+                                    템플릿 += `
+                                    <div class="products" style=" display: flex; cursor: pointer;" onclick="location.href='/detail_auction.html?id=${doc.id}'">
+                                        <div>
+                                            <img src="${doc.data().이미지1}" style="width: 50px; margin: 10px; height: 50px; border-radius: 7px; margin-left: 15px;">
+                                        </div>
+                                        <div class="details" style=" display: flex; margin-left: 10px; align-items: center;">
+                                            <p>상품명: ${doc.data().상품명}</p>
+                                        </div>
+                                    </div>
+                                    `;
+                                }
+                            });
+                            if (템플릿 === "<h3 style='padding: 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; font-weight: bold; font-size: 22px; background-color: #fa7575;'>낙찰 상품</h3>") {
+                                템플릿 += `<div style="text-align: center; padding: 20px; font-size: 18px; ">낙찰 상품이 없습니다.</div>`;
+                            }
+                            document.getElementById('user-auction').innerHTML = 템플릿;
+                        });
+                    })
+
+                    $('.button_auction').click(function () {
+                        window.location.href = '/cart_auction.html';
+                    });
+
+
+                    // Fetch and display user's posts
+                    db.collection("product").where("uid", "==", user.uid).get().then((querySnapshot) => {
+                        let userPosts = "<h3 style='padding: 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; font-weight: bold; font-size: 22px; background-color: #fa7575;'>등록 상품</h3>";
+                        let hasPosts = false;   //등록 상품 여부 담을 변수
+                        querySnapshot.forEach((doc) => {
+                            hasPosts = true;
+                            // 게시물의 URL을 가져옵니다. 이 예제에서는 게시물의 ID를 사용하여 URL을 생성합니다.
+                            const postId = doc.id;
+                            const postImageUrl = doc.data().이미지1;
+
+                            // 이미지를 클릭했을 때 해당 게시물로 이동하도록 <a> 태그를 사용합니다.
+                            userPosts += `<a href="detail.html?id=${postId}" style="padding: 10px;"><img src="${postImageUrl}" id="resist-img" alt="상품 이미지" style="width: 60px; height: 60px; transition: background-color 0.3s ease;"></a>`;
+                        });
+                        if (!hasPosts) {
+                            userPosts += `<div style="text-align: center; padding: 20px; font-size: 18px;">등록 상품이 없습니다.</div>`;
+                        }
+                        document.getElementById('user-posts').innerHTML = userPosts;
+                    }).catch((error) => {
+                        console.log("Error fetching user posts: ", error);
+                    });
+
+                    db.collection("user-id").doc(user.uid).get().then((doc) => {
+                        if (doc.exists) {
+                            const userData = doc.data();
+                            let userInterests = "<h3 style='padding: 10px; border-top-left-radius: 8px; border-top-right-radius: 8px; font-weight: bold; font-size: 22px; background-color: #fa7575;'>관심 상품</h3>";
+                            let hasInterests = false;  //관심 상품 여부 담을 변수
+
+                            if (Array.isArray(userData.관심상품) && userData.관심상품.length > 0) {
+                                let promises = userData.관심상품.map((postId) => {
+                                    return db.collection("product").doc(postId).get().then((productDoc) => {
+                                        if (productDoc.exists) {
+                                            hasInterests = true;
+                                            const productData = productDoc.data();
+                                            const postImageUrl = productData.이미지1;
+
+                                            userInterests += `<a href="detail.html?id=${postId}" style="padding: 10px;"><img src="${postImageUrl}" id="resist-img" alt="상품 이미지" style="width: 60px; height: 60px; transition: background-color 0.3s ease; border-radius: 8px;"></a>`;
+                                        } else {
+                                            console.log("No such document!");
+                                        }
+                                    }).catch((error) => {
+                                        console.log("Error getting document:", error);
+                                    });
+                                });
+
+                                Promise.all(promises).then(() => {
+                                    if (!hasInterests) {
+                                        userInterests += `<div style="text-align: center; padding: 20px; font-size: 18px;">관심 상품이 없습니다.</div>`;
+                                    }
+                                    document.getElementById('user-interest').innerHTML = userInterests;
+                                });
+                            } else {
+                                userInterests += `<div style="text-align: center; padding: 20px; font-size: 18px;">관심 상품이 없습니다.</div>`;
+                                document.getElementById('user-interest').innerHTML = userInterests;
+                            }
+                        } else {
+                            console.log("No such document!");
+                        }
+                    }).catch((error) => {
+                        console.log("Error fetching user data: ", error);
+                    });
+
+
+
+
+
+                    // Fetch and display user's chats
+                    db.collection("chat").where("who", "array-contains", user.uid).get().then((querySnapshot) => {
+                        // 채팅방 목록 UI 업데이트
+                        var chatList = document.getElementById("chatList");
+
+                        // '등록 상품' 제목을 추가
+                        var h3 = document.createElement("h3");
+                        h3.textContent = "채팅 내역";
+                        h3.style.padding = "10px"; // 패딩 추가
+                        h3.style.fontWeight = "bold";
+                        h3.style.fontSize = "22px";
+                        h3.style.backgroundColor = "#fa7575";
+                        h3.style.borderTopRightRadius = "8px";
+                        h3.style.borderTopLeftRadius = "8px";
+                        chatList.appendChild(h3);
+
+
+                        // 각 채팅에 대한 동작 수행
+                        if (!querySnapshot.empty) {
+                            // 채팅방 목록 UI 업데이트
+                            querySnapshot.forEach((chatDoc) => {
+                                console.log("Chat ID: ", chatDoc.id);
+
+                                const chatData = chatDoc.data();
+                                const productName = chatData.product;
+                                const productImage = chatData.이미지1; // 제품 이미지
+
+                                // 채팅방 목록 UI 업데이트
+                                var chatListItem = document.createElement("li");
+
+                                // 이미지 엘리먼트 생성
+                                var img = document.createElement("img");
+                                img.src = productImage;
+                                img.style = "width: 50px; height: 50px; border-radius: 8px; margin-right: 10px;";
+
+                                // 제품 정보를 담을 div 생성
+                                var productInfoDiv = document.createElement("div");
+                                productInfoDiv.appendChild(img);
+                                productInfoDiv.appendChild(document.createTextNode(productName));
+                                productInfoDiv.style.fontWeight = "bold";
+
+                                chatListItem.appendChild(productInfoDiv);
+                                chatListItem.classList.add("list-group-item");
+                                chatListItem.addEventListener("click", () => {
+                                    // 채팅방 클릭 시 이동
+                                    window.location.href = "chat.html?chatId=" + chatDoc.id;
+                                });
+                                chatList.appendChild(chatListItem);
+                            });
+                        } else {
+                            // 채팅 내역 없는 경우
+                            var noChatMsg = document.createElement("div");
+                            noChatMsg.textContent = "채팅 내역이 없습니다.";
+                            noChatMsg.style = "text-align: center; padding: 20px; font-size: 18px; font-weight: normal; ";
+                            chatList.appendChild(noChatMsg);
+                        }
+                    }).catch((error) => {
+                        console.log("Error getting chats: ", error);
+                    });
+                } else {
+                    console.log("User is not logged in.");
+                }
+            });
+        }
+
+        // Call fetchUserProfile function when the page is loaded
+        window.onload = fetchUserProfile;
+
+
+        // 계정 삭제 버튼에 대한 클릭 이벤트 리스너 추가
+        document.getElementById('delete-account-btn').addEventListener('click', function () {
+            // 사용자에게 삭제를 확인하는 메시지를 표시하고, 확인 시 계정을 삭제합니다.
+            var confirmDelete = confirm("계정을 삭제하시겠습니까?");
+            if (confirmDelete) {
+                deleteUserAccount();
+            }
+        });
+
+        // 사용자 계정을 삭제하는 함수
+        function deleteUserAccount() {
+            var user = firebase.auth().currentUser; // 현재 로그인한 사용자 가져오기
+            user.delete().then(function () {
+                // 계정 삭제 성공 시 처리할 내용
+                console.log("계정이 성공적으로 삭제되었습니다.");
+                // 여기에 추가적인 작업을 수행할 수 있습니다. 예를 들어, 로그아웃 처리 등을 수행할 수 있습니다.
+            }).catch(function (error) {
+                // 계정 삭제 실패 시 처리할 내용
+                console.error("계정 삭제 중 오류가 발생했습니다.", error);
+                // 오류 메시지를 사용자에게 표시하거나 추가적인 작업을 수행할 수 있습니다.
+            });
+        }
+
+
+    </script>
+
+<script>
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const userId = user.uid;
+            try {
+                // 'biz-id' 컬렉션에서 해당 사용자 검색
+                const bizUserDoc = await db.collection('biz-id').doc(userId).get();
+                if (bizUserDoc.exists) {
+                    // 사용자가 'biz-id' 컬렉션에 존재하면 접근 제한
+                    alert("해당 페이지에 접근할 수 없습니다.");
+                    window.location.href = "index.html"; // 접근 제한 시 리디렉션할 페이지
+                } else {
+                    console.log("Access granted.");
+                }
+            } catch (error) {
+                console.error("Error checking user in biz-id collection:", error);
+            }
+        } else {
+            console.log("No user is signed in.");
+        }
+    });
+</script>
+</body>
+
+</html>

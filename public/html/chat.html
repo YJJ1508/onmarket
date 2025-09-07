@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/e1a2c43e41.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../css/chatstyle.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght@48,400,1,0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="/images/5572662.png" type="/images/5572662.png">
+    <style>
+        .filter-container {
+            display: flex;
+            align-items: center;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 25px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-container:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .filter-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 25px;
+            background-color: #ffffff;
+            outline: none;
+            font-size: 16px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .filter-input:focus {
+            background-color: #ffffff;
+        }
+
+        .filter-container i {
+            margin-right: 10px;
+            color: #888;
+            transition: color 0.3s ease;
+        }
+
+        .filter-container:hover i {
+            color: #555;
+        }
+
+        .contacts {
+            height: 100vh;
+            padding: 10px;
+        }
+
+        .contact {
+            margin-top: 10px;
+        }
+
+        .chat_list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        /* 채팅 이용 안내문구 css */
+        .alert {
+            padding: 8px 16px;
+            background-color: #f8f8f8;
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            font-weight: 500;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+
+    </style>
+    <title>ON-MARKET</title>
+</head>
+
+<body>
+    <!-- Firebase and jQuery scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Firebase configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+    </script>
+
+    <!-- Chat Container -->
+    <div class="center">
+        <div class="contacts">
+            <div class="filter-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="filterInput" class="filter-input" placeholder="물품이나 사용자 이름을 입력하세요.">
+            </div>
+            <div class="contact">
+                <ul class="chat_list"></ul>
+            </div>
+        </div>
+
+        <div class="chat">
+            <div class="contact_bar">
+                <div class="left_bar"></div>
+                <div class="right_bar2" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div class="right_bar_pay"></div>
+                </div>
+            </div>
+
+            <!-- 메세지 이용 안내 -->
+            <div class="alert">
+                타인에 대한 욕설,비방 등 부적절한 행위는 이용에 제한이 될 수 있으며, 개인정보 보호를 위해 민감한 정보를 공유하지 않기를 바랍니다.
+            </div>
+
+            <div class="messages">
+                <ul class="chat_content"></ul>
+            </div>
+
+            <div class="input">
+                <i class="fas fa-camera" id="camera" title="사진 올리기"></i>
+                <i class="far fa-laugh-beam" id="laugh" title="이모티콘"></i>
+                <input class="chat_form" id="chat_input" placeholder="메세지를 입력하세요." type="text" />
+                <i class="far fa-paper-plane" id="send" title="전송하기"></i>
+                <i class="fas fa-language" id="translate" title="번역하기"></i>
+            </div>
+            <div class="emojis" id="emojis">
+                <div class="emoji-group">
+                    <i class="far fa-grin-squint-tears" data-emoji="😂"></i>
+                    <i class="far fa-laugh-beam" data-emoji="😆"></i>
+                    <i class="far fa-kiss-wink-heart" data-emoji="😘"></i>
+                    <i class="far fa-angry" data-emoji="😡"></i>
+                    <i class="far fa-sad-tear" data-emoji="😢"></i>
+                    <i class="far fa-grin-squint" data-emoji="😄"></i>
+                    <i class="far fa-grin-beam-sweat" data-emoji="😅"></i>
+                    <i class="far fa-grin-alt" data-emoji="😁"></i>
+                    <i class="far fa-grin" data-emoji="😀"></i>
+                    <i class="far fa-grin-tongue" data-emoji="😛"></i>
+                    <i class="far fa-sad-cry" data-emoji="😭"></i>
+                    <i class="far fa-grimace" data-emoji="😬"></i>
+                    <i class="far fa-grin-stars" data-emoji="🤩"></i>
+                    <i class="far fa-tired" data-emoji="😫"></i>
+                    <i class="far fa-surprise" data-emoji="😲"></i>
+                    <i class="far fa-meh" data-emoji="😐"></i>
+                    <i class="far fa-frown" data-emoji="😞"></i>
+                    <i class="far fa-dizzy" data-emoji="😵"></i>
+                    <i class="far fa-flushed" data-emoji="😳"></i>
+                    <i class="far fa-grin-tongue-wink" data-emoji="😜"></i>
+                    <i class="far fa-grin-tongue-squint" data-emoji="😝"></i>
+                    <i class="far fa-grin-wink" data-emoji="😉"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이미지 확대창 -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage">
+        <div id="caption"></div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        const apiKey = "GOOGLE_CLOUD_API_KEY"; // 구글 클라우드 API KEY 
+
+        // API 호출을 줄이기 위해 이미 번역한 메세지에 대한 캐싱 로직
+        const translationCache = new Map();
+
+        async function translateText(text, targetLang) {
+            if (translationCache.has(text)) {
+                return translationCache.get(text);
+            }
+
+            const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
+            const res = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    q: text,
+                    target: targetLang
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            const translatedText = data.data.translations[0].translatedText;
+            translationCache.set(text, translatedText);
+            return translatedText;
+        }
+
+        // 특수 문자도 제대로 번역되도록 
+        function decodeHTMLEntities(text) {
+            var textArea = document.createElement('textarea');
+            textArea.innerHTML = text;
+            return textArea.value;
+        }
+
+        document.getElementById('translate').addEventListener('click', async () => {
+            const text = document.getElementById('chat_input').value;
+            if (text) {
+                const isKorean = /[\u3131-\uD79D]/ugi.test(text);
+                const targetLang = isKorean ? 'en' : 'ko';
+                const confirmMessage = isKorean ? '메세지를 번역하시겠습니까?' : 'Would you like to translate the message?';
+                const userConfirmed = confirm(confirmMessage);
+                if (userConfirmed) {
+                    const translatedText = await translateText(text, targetLang);
+                    document.getElementById('chat_input').value = decodeHTMLEntities(translatedText);
+                }
+            }
+        });
+
+        var 내uid = JSON.parse(localStorage.getItem('user')).uid;
+        var 채팅방id, 채팅데이터;
+        var chatList = [];
+
+        db.collection('chat').where('who', 'array-contains', 내uid).get().then((result) => {
+            let 채팅방이있음 = false;
+            let 채팅방Promises = [];
+
+            result.forEach((a) => {
+                채팅방이있음 = true;
+                var 채팅방id = a.id;
+
+                // 채팅방 정보가 제대로 로드되었는지 확인
+                console.log("채팅방 데이터: ", a.data());
+
+                // 해당 채팅방의 messages 컬렉션에서 최근 메시지 가져오기
+                let promise = db.collection('chat').doc(채팅방id).collection('messages').orderBy('date', 'desc').limit(1).get().then((querySnapshot) => {
+                    var 최근메시지 = "";
+                    var 최근날짜 = null;
+                    querySnapshot.forEach((doc) => {
+                        if (doc.data().type === 'image') {
+                            최근메시지 = "사진을 보냈습니다.";
+                        } else {
+                            최근메시지 = doc.data().content.length > 20 ? doc.data().content.slice(0, 20) + '...' : doc.data().content;
+                        }
+                        최근날짜 = doc.data().date.toDate();
+                    });
+
+                    var 상대방이름;
+
+                    console.log("판매자uid: ", 판매자uid);
+                    console.log("내uid: ", 내uid);
+
+                    var 판매자uid = a.data().who[1]; 
+                    if (판매자uid === 내uid) {
+                        console.log("구매자 이름을 사용");
+                        상대방이름 = a.data().구매자_이름;
+                    } else {
+                        console.log("판매자 이름을 사용");
+                        상대방이름 = a.data().판매자_이름;
+                    }
+                    console.log("상대방이름: ", 상대방이름);
+
+                    var chatItem = {
+                        id: 채팅방id,
+                        image: a.data().이미지1,
+                        name: 상대방이름,
+                        recentMessage: 최근메시지,
+                        recentDate: 최근날짜,
+                        productName: a.data().product,
+                        dateCreated: a.data().date 
+                    };
+
+                    chatList.push(chatItem);
+                });
+
+                채팅방Promises.push(promise);
+            });
+
+            if (!채팅방이있음) {
+                alert('채팅 내역이 없습니다. 메인 페이지로 이동합니다.');
+                window.location.href = 'index.html';
+            } else {
+                Promise.all(채팅방Promises).then(() => {
+                    updateChatList();
+
+                    // URL에서 채팅방 ID 추출
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const chatIdFromUrl = urlParams.get('chatId');
+
+                    if (chatIdFromUrl) {
+                        const chatExists = chatList.some(chat => chat.id === chatIdFromUrl);
+                        if (chatExists) {
+                            $(`.chat_list_info[data-chatid="${chatIdFromUrl}"]`).click();
+                        } else if (chatList.length > 0) {
+                            const sortedChatList = chatList.sort((a, b) => b.dateCreated - a.dateCreated);
+                            const recentChatId = sortedChatList[0].id;
+                            $(`.chat_list_info[data-chatid="${recentChatId}"]`).click();
+                        }
+                    } else if (chatList.length > 0) {
+                        const sortedChatList = chatList.sort((a, b) => b.dateCreated - a.dateCreated);
+                        const recentChatId = sortedChatList[0].id;
+                        $(`.chat_list_info[data-chatid="${recentChatId}"]`).click();
+                    }
+                });
+            }
+        });
+        
+
+        function updateChatList() {
+            var filter = $('#filterInput').val().toLowerCase();
+            var filteredChatList = chatList.filter(chat => chat.name.toLowerCase().includes(filter) || chat.productName.toLowerCase().includes(filter));
+            var sortedChatList = filteredChatList.sort((a, b) => b.dateCreated - a.dateCreated); // dateCreated 기준으로 채팅방 정렬
+            $('.chat_list').html('');
+            sortedChatList.forEach(chat => {
+                var template = `<li class="chat_list_info" data-chatid="${chat.id}">
+                    <div class="product_info">
+                        <div class="product_pic">
+                            <img src="${chat.image}" data-image="${chat.image}" style="width: 70px; height: 70px; border-radius: 50%; padding-left: 5px;">
+                        </div>
+                        <div class="user_info">
+                            <h6 class="user_name">${chat.name}</h6>
+                            <h6 class="recent_message">${chat.recentMessage}</h6> 
+                        </div>
+                    </div>
+                </li>`;
+                $('.chat_list').append(template);
+            });
+        }
+
+        $(document).on('input', '#filterInput', function () {
+            updateChatList();
+        });
+
+        $(document).on('click', '.chat_list_info', function (e) {
+            e.stopImmediatePropagation();
+
+            // 현재 클릭된 채팅방을 구별하는 로직
+            $('.chat_list_info').removeClass('active');
+            $(this).addClass('active');
+
+            채팅방id = $(this).data('chatid');
+
+            // URL 업데이트
+            const newUrl = new URL(window.location);
+            newUrl.searchParams.set('chatId', 채팅방id);
+            window.history.pushState({ path: newUrl.href }, '', newUrl.href);
+
+            var 이전_날짜 = null;
+
+            db.collection('chat').doc(채팅방id).collection('messages').orderBy('date').onSnapshot((result) => {
+                $('.chat_content').html('');
+                var 이전_날짜 = null;
+                result.forEach((a, index) => {
+                    var 날짜 = a.data().date.toDate();
+                    var 시간 = (날짜.getHours() % 12 || 12);
+                    var 분 = (날짜.getMinutes() < 10 ? '0' : '') + 날짜.getMinutes();
+                    var 오전오후 = (날짜.getHours() < 12 ? '오전' : '오후');
+                    var 시간문자열 = 오전오후 + ' ' + 시간 + ':' + 분;
+                    var 날짜문자열 = `${('0' + (날짜.getMonth() + 1)).slice(-2)}.${('0' + 날짜.getDate()).slice(-2)}`;
+
+                    if (a.data().uid == 내uid) {
+                        var 템플릿 = `<li class="message-container mine">
+                                        <div class="message-content">
+                                            ${a.data().type == 'image' ? `<img src="${a.data().content}" alt="">` : a.data().content}
+                                            <small>${날짜문자열} ${시간문자열}</small>
+                                        </div>
+                                    </li>`;
+                    } else {
+                        var 템플릿 = `<li class="message-container">
+                                        <div class="message-content">
+                                            ${a.data().type == 'image' ? `<img src="${a.data().content}" alt="">` : a.data().content}
+                                            <small>${날짜문자열} ${시간문자열}</small>
+                                        </div>
+                                    </li>`;
+                    }
+                    $('.chat_content').append(템플릿);
+
+                    이전_날짜 = 날짜;
+                });
+                $('.chat_content').scrollTop($('.chat_content')[0].scrollHeight);
+            });
+
+            db.collection('chat').doc(채팅방id).get().then((snapshot) => {
+                var 물품이름 = snapshot.data().product;
+                var 물품이미지 = snapshot.data().이미지1;
+
+                $('.left_bar').html(`
+                    <div class="left_bar">
+                        <img src="${물품이미지}" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">&nbsp
+                        <h5 class="product_name">${물품이름}</h5>
+                        <i class="fas fa-sign-out-alt" id="leave" style="margin-left: 10px; cursor: pointer;"></i>
+                        <i class="fas fa-ban" id="report" style="margin-left: 10px; cursor: pointer;" title="신고하기"></i>
+                    </div>`);
+
+                $('.right_bar2').html(`
+                    <div class="right_bar_pay">
+                        <button id= "payBtn" style="display: inline-flex; align-items: center; background-color: white; color: black; border: 1px solid lightgrey; border-radius: 5px; padding: 8px 15px; text-decoration: none; font-size: 16px; margin: 3px; margin-right: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                            <img width="30px" height="30px" src="https://img.icons8.com/ios-glyphs/30/won.png" alt="won" />
+                            결제하기
+                        </button>
+                    </div>
+                    <div class="right_bar_image" sytle="margin-left: 30px"> 
+                        <a href="index.html">
+                        <img src="/images/5572662.png" style="width: 50px; padding-left:20px height: 50px;" title="메인 페이지로 이동">
+                    </a>
+                    </div>
+                `);  
+            });
+        });
+        //결제하기 버튼 눌렀을 때 
+        $('.right_bar2').on('click', '#payBtn', function() {
+            //chatId 저장
+            var urlParams = new URLSearchParams(window.location.search);
+            var chatId = urlParams.get("chatId");
+            localStorage.setItem("chatId", JSON.stringify(chatId));
+            window.location.href = "pay.html";
+        })
+
+        $('#send').click(function () {
+            var 입력값 = $('#chat_input').val();
+            var 채팅데이터;
+            if (입력값.startsWith('http')) {
+                채팅데이터 = {
+                    content: 입력값,
+                    date: new Date(),
+                    uid: 내uid,
+                    type: 'image'
+                }
+            } else {
+                채팅데이터 = {
+                    content: 입력값,
+                    date: new Date(),
+                    uid: 내uid,
+                    type: 'text'
+                }
+            }
+            db.collection('chat').doc(채팅방id).collection('messages').add(채팅데이터)
+                .then(() => {
+                    $('#chat_input').val('');
+
+                    var 최근메시지 = 입력값.startsWith('http') ? "사진을 보냈습니다." : 입력값.length > 20 ? 입력값.slice(0, 20) + '...' : 입력값;
+                    $('.chat_list_info[data-chatid="' + 채팅방id + '"] .recent_message').text(최근메시지);
+                })
+                .catch((error) => {
+                    console.error("Error: ", error);
+                });
+        });
+
+        $('#chat_input').keypress(function (event) {
+            if (event.which == 13) {
+                event.preventDefault();
+                $('#send').click();
+            }
+        });
+
+        $('#chat_input').focus(function () {
+            $('#emojis').hide();
+        });
+
+        $('#camera').click(function () {
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                var file = e.target.files[0];
+                var ref = storage.ref('chat_images/' + file.name);
+                ref.put(file).then(() => {
+                    ref.getDownloadURL().then(url => {
+                        $('#chat_input').val(url);
+                    });
+                });
+            };
+            input.click();
+        });
+
+        $('#laugh').click(function () {
+            $('#emojis').toggle();
+        });
+
+        $('.emojis i').click(function () {
+            var 이모지 = $(this).data('emoji');
+            $('#chat_input').val($('#chat_input').val() + 이모지);
+        });
+
+        $(document).on('click', '.message img', function () {
+            var imageUrl = $(this).attr('src');
+            window.open(imageUrl, '_blank');
+        });
+
+        $(document).on('click', '.message_mine img', function () {
+            var imageUrl = $(this).attr('src');
+            window.open(imageUrl, '_blank');
+        });
+
+        $(document).on('click', '#leave', function () {
+            if (confirm('채팅방을 나가시겠습니까?')) {
+                // 하위 컬렉션 삭제 후 채팅방 삭제
+                const messagesRef = db.collection('chat').doc(채팅방id).collection('messages');
+                
+                messagesRef.get().then((querySnapshot) => {
+                    const batch = db.batch();
+                    
+                    querySnapshot.forEach((doc) => {
+                        batch.delete(doc.ref);
+                    });
+                    
+                    return batch.commit();
+                }).then(() => {
+                    return db.collection('chat').doc(채팅방id).delete();
+                }).then(() => {
+                    alert('채팅이 삭제되었습니다.');
+                    
+                    db.collection('chat').where('who', 'array-contains', 내uid).get().then((result) => {
+                        if (!result.empty) {
+                            location.reload();
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }).catch((error) => {
+                        console.error("Error getting documents: ", error);
+                    });
+                }).catch((error) => {
+                    console.error("Error removing document: ", error);
+                });
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (event.target.id === 'report') {
+                if (confirm('신고하시겠습니까?')) {
+                    const chatId = 채팅방id; 
+                    const reportRef = db.collection('report').doc(); 
+
+                    db.collection('chat').doc(chatId).get().then((snapshot) => {
+                        const chatData = snapshot.data();
+                        const 상대방uid = chatData.who.find(uid => uid !== 내uid); 
+
+                        reportRef.set({
+                            chatId: chatId,
+                            신고자: 내uid,
+                            신고대상: 상대방uid, 
+                            reportedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        })
+                        .then(() => {
+                            const reportMessagesRef = reportRef.collection('reportmessages');
+
+                            db.collection('chat').doc(chatId).collection('messages').get()
+                            .then((querySnapshot) => {
+                                querySnapshot.forEach((doc) => {
+                                    reportMessagesRef.add(doc.data());
+                                });
+                            })
+                            .catch((error) => {
+                                console.error('Error getting messages: ', error);
+                            });
+                            alert('신고가 접수되었습니다.');
+                        })
+                    .catch((error) => {
+                        console.error('Error reporting chat: ', error);
+                    });
+                }).catch((error) => {
+                    console.error('Error getting chat data: ', error);
+                    });
+                }
+            }
+        });
+
+        // 메세지에 포함된 이미지 클릭시 이벤트
+        $(document).on('click', '.message-content img', function () {
+            var modal = document.getElementById("imageModal");
+            var modalImg = document.getElementById("modalImage");
+            var captionText = document.getElementById("caption");
+
+            modal.style.display = "block";
+            modalImg.src = this.src;
+            captionText.innerHTML = this.alt;
+        });
+
+        // 이미지 닫기
+        var modal = document.getElementById("imageModal");
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,124 @@
+#delete-account-btn,
+.button_order,
+.button_auction {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    background-color: #f4511e;
+    color: #FFFFFF;
+    /* 흰색 텍스트 */
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* 약한 그림자 */
+    transition: background-color 0.3s ease;
+    right: 80px;
+    font-family: none;
+    bottom: 17px;
+}
+
+.profile-section {
+    padding: 50px 0;
+    background-color: #ffffff;
+}
+
+.profile-section h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+#user-info {
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#user-order {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+#user-auction {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+#user-posts {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#user-interest {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#chatList .list-group-item {
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#chatList .list-group-item:hover {
+    background-color: #f0f0f0;
+
+}
+
+.image-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.product-image {
+    width: 240px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+#resist-img {
+    margin-bottom: 10px;
+}
+
+#resist-img:hover {
+    background-color: #f0f0f0;
+    border-radius: 8px;
+}
+
+.show_order {
+    display: flex;
+}
+
+@font-face {
+    font-family: 'KCC-Hanbit';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2403-2@1.0/KCC-Hanbit.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+button {
+    font-family: 'KCC-Hanbit', sans-serif;
+    /* 사용할 폰트 지정 */
+}

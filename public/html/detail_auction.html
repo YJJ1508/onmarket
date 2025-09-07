@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/e1a2c43e41.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="/images/5572662.png" type="/images/5572662.png">
+    <title>ON-MARKET</title>
+    <link rel="stylesheet" href="../css/detail_auction.css">
+</head>
+
+<body>
+    <!-- Firebase and jQuery scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Firebase configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+    <!-- Header -->
+    <div class="header" style="margin-right: 15px;">
+        <div class="header_wrap">
+            <div class="header_content">
+                <img src="/images/5572662.png" style="width: 80px; margin-top: 8px; padding-right: 10px;">
+                <h1 style="margin-top: 19px; font-size: 27px; color: #f4511e; font-weight: bold;"><a href="/"
+                        style="color: #f4511e; text-decoration: none;">ON</a></h1>
+            </div>
+
+            <div class="header_content">
+                <a href="/myprofile.html">
+                    <button type="submit" id="basketLink" class="basket_button"><i class="fa-solid fa-cart-shopping"></i></button>
+                </a>
+
+                <a href="/myprofile.html">
+                    <button type="submit" id="profileLink" class="login_button"><i class="fa-solid fa-user"></i></button>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="body" style="width: 1024px; margin: 10px auto; display: flex; flex-direction: column; align-items: flex-start; ">
+        <div class="body_content2" style="padding-left: 530px; margin-bottom: 20px;">
+            <!--경매 남은 시간 알림-->
+        </div>
+        
+        <div class="body_content1" style="display: flex;">
+            <!--경매 상품 정보-->
+        </div>
+        <div class="body_content4" style="margin-bottom: 30px;">
+            <div class="auction_content" style="justify-content: center;
+            padding-left: 200px;
+            margin-bottom: 30px;
+            margin: auto;">
+
+            </div>
+            
+        </div>
+        <div class="body_content3" >
+            <div class="auction_ing">
+                <div class="bid">
+                    <!--입찰 기능-->
+                    <table>
+                    <colgroup>
+                        <col style="width: 30%;">
+                    </colgroup>
+                    <tr>
+                        <th colspan="2" style="background-color: transparent; border: none; text-align: left;">입찰</th>
+                    </tr>
+                    <tr>
+                        <td>입찰금액</td>
+                        <td><input type="number" id="bidInput"></td>
+                    </tr>
+                    </table>
+                    <button id="bidBtn" class="bidBtn">입찰하기</button>
+                </div>
+                <div class="showBox" style="margin-right: 70px; margin-top: 15px;">
+                    <div class="show_bid_title" style="padding-top: 30px; padding-left: 50px; font-size: 24px;">
+                        실시간 입찰 정보
+                    </div>
+                    <!--실시간 입찰정보 " -->
+                    <div class="showBid" >
+                    </div>
+                </div>
+            </div>
+            <div class="closed_auction">
+                <p style="text-align: center; margin: 40px; color: gray">경매가 종료되었습니다. 해당 낙찰자는 개인페이지에서 상품을 구매할 수 있습니다.</p>
+                <div class="pageBtn">
+                    <a href="cart_auction.html">
+                        <button class="page_button" style="text-align: center;">내 페이지로 이동</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(async function () {
+            $('#basketLink').click(function (event) {
+                event.preventDefault();
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (!user) {
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html"; // 로그인 페이지로 리다이렉션
+                    } else {
+                        window.location.href = "/myprofile.html"; // 로그인이 되어 있다면, myprofile.html로 이동
+                    }
+                });
+            });
+            $('#profileLink').click(function (event) {
+                event.preventDefault();
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (!user) {
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html"; // 로그인 페이지로 리다이렉션
+                    } else {
+                        window.location.href = "/myprofile.html"; // 로그인이 되어 있다면, myprofile.html로 이동
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(async function () {
+            var productId = getId();    //경매상품id 변수
+            displayDetails(productId);   //상품 정보 호출 함수
+            displayTime(productId);      //남은 시간 호출 함수
+            showBidUpdates(productId);   //실시간 입찰정보 출력
+            countBid(productId);         //입찰수 호출 함수
+            
+            // 경매종료 후 입찰정보 내리는 로직
+            var auctionDB = await db.collection("auction").doc(productId).get();
+            var status = auctionDB.data().경매상태;
+            if(status == "종료"){   
+                $(".auction_ing").hide();   //기존화면
+                $(".closed_auction").show();    //경매종료 후 화면
+                $(document).on('click', ".page_button", async function(event){
+                event.preventDefault(); //링크 이동막음
+                await firebase.auth().onAuthStateChanged( async function(user){   //로그인 확인
+                    if(!user){
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html";
+                    }else {
+                        // 로그인된 경우 원래 링크로 이동
+                        window.location.href = "cart_auction.html";
+                    }
+                }) 
+            });
+            } else{
+                $(".closed_auction").hide();
+                $(".auction_ing").show();
+            }
+   
+            $('#bidBtn').click(async function(){   // 입찰하기 버튼
+                await firebase.auth().onAuthStateChanged( async function(user){   //로그인 확인
+                    if(user){
+                        var uid = getUid(); 
+                        await placeBid(productId, uid);  //입찰 호출 함수               
+                        await showBidUpdates(productId);  //실시간 입찰정보 출력
+                        await countBid(productId);        //입찰수 반영
+                        $("#bidInput").val("");
+                    }
+                    else{
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html";
+                    }
+                })
+            });  
+            
+            
+        })
+
+        function getId(){   //경매 상품 id 호출 함수
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        function getUid(){
+            var uid = JSON.parse(localStorage.getItem('user')).uid 
+            return uid; 
+        }
+        async function displayDetails(productId){   //상품 상세정보 함수
+            var auctionDB = await db.collection("auction").doc(productId).get();
+            var 템플릿 = '';
+            템플릿 += `
+                <div class="product" style="display: flex; align-items: center;">
+                    <div class="images">
+                        <button class="prev" onclick="prevSlide()">&#10094;</button>
+                        <div class="imagesInner" style="display: flex; transition: transform 0.2s ease-in-out;">
+                            <img class="p_image" src="${auctionDB.data().이미지1}" style="margin-right: 30px;">
+                            <img class="p_image" src="${auctionDB.data().이미지2}" style="margin-right: 30px;">
+                            <img class="p_image" src="${auctionDB.data().이미지3}" style="margin-right: 30px;">
+                        </div>
+                        <button class="next" onclick="nextSlide()">&#10095;</button>
+                    </div>
+                    <table>
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 60%;">
+                        </colgroup>
+                        <tr>
+                            <th colspan="2" style="background-color: transparent; border: none; text-align: left;">상세정보</th>
+                        </tr>
+                            <td>상품명</td>
+                            <td>${auctionDB.data().상품명}</td>
+                        </tr>
+                        <tr>
+                            <td>상품 번호</td>
+                            <td>${auctionDB.id}</td>
+                        </tr>
+                        <tr>
+                            <td>상품 주소</td>
+                            <td>${auctionDB.data().주소}</td>
+                        </tr>
+                        <tr>
+                            <td>경매 종료일</td>
+                            <td>${auctionDB.data().경매종료시간}</td>
+                        </tr>
+                        <tr>
+                            <td>시작가</td>
+                            <td>${auctionDB.data().시작가}</td>
+                        </tr>
+                        <tr>
+                            <td>현재 입찰가</td>
+                            <td id="current_bid">${auctionDB.data().현재입찰가}</td>
+                        </tr>
+                        <tr>
+                            <td>상품 내용</td>
+                            <td class="inst_table">${auctionDB.data().내용}</td>
+                        </tr>
+                    </table>    
+                </div>
+            `
+            $('.body_content1').append(템플릿);
+
+            // 슬라이드 초기화
+            initSlides();   //사진 안넘어가서 추가..p_image클래스
+        }
+
+        function initSlides() {
+        var currentSlide = 0;
+        function showSlide(index) {
+            const imagesInner = document.querySelector('.imagesInner');
+            const images = document.querySelectorAll('.p_image');
+            const totalImages = images.length;
+            if (totalImages === 0) {
+                console.error("'p_image' 에러");
+                return;
+            }
+            if (index >= totalImages) {
+                currentSlide = 0;
+            } else if (index < 0) {
+                currentSlide = totalImages - 1;
+            } else {
+                currentSlide = index;
+            }
+            const offset = -currentSlide * (images[0].clientWidth + 30); // 280 + 30은 margin-right 값
+            imagesInner.style.transform = `translateX(${offset}px)`;
+            }
+            window.nextSlide = () => {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+            window.prevSlide = () => {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+            showSlide(currentSlide); // 초기 슬라이드 설정
+        }
+        
+        // 실시간으로 남은 시간을 업데이트하는 새로운 함수
+        async function displayTime(productId) { 
+            async function updateTime() {  
+                var auctionDB = await db.collection("auction").doc(productId).get();
+                var endD = auctionDB.data().경매종료시간; 
+                var endDate = new Date(endD + "T23:59:59"); // date객체로 변환
+
+                var now = new Date();   // 현재 시간
+
+                var timeLeft = endDate.getTime() - now.getTime();   // 남은 시간 계산
+                //var timeLeft = 0    //임시로 test
+                
+                // 밀리초를 사용하여 시, 분, 초로 변환합니다.
+                var seconds = Math.floor((timeLeft / 1000) % 60);
+                var minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+                var hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+                var days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+
+                var 최종time = "남은 시간:  " + days + "일 " + hours + "시간 " + minutes + "분 " + seconds + "초";
+                $(".body_content2").text(최종time);
+                
+                //시간이 종료됐을 때
+                if(timeLeft <= 0){
+                    clearInterval(intervalF); // 화면에 시간 띄우기 멈추기
+                    $(".body_content2").text("경매가 종료되었습니다");
+                    
+                    // 낙찰 함수 호출
+                    successfulBid(productId)
+                }
+            }
+            updateTime(); // 최초 실행
+            var intervalF = setInterval(updateTime, 1000); // setInterval() 통해서 1초마다 updateTime 함수를 반복 실행
+            
+            
+        }
+        
+        // 낙찰 시간 종료되면 호출되는 [낙찰 산정 함수]
+        async function successfulBid(productId){
+            try {
+                // curr_bidders 컬렉션에서 가장 최근의 문서 가져오기
+                var currBidderDB = await db.collection("auction").doc(productId).collection("curr_bidders")
+                    .orderBy("입찰시간", "desc").limit(1).get();
+                if (currBidderDB.empty) {
+                    console.log("입찰자가 없습니다.");
+                    return;
+                }
+                var sucessfulBidDoc = currBidderDB.docs[0];
+                var sucessfulBidPrice = sucessfulBidDoc.data().현재입찰가;
+                var sucessfulBidId = sucessfulBidDoc.data().현재입찰자id;
+                var sucessfulBidEmail = sucessfulBidDoc.data().현재입찰자email;
+
+                // 경매 종료 로직 처리 (예: 상품을 최고 입찰자에게 할당, 알림 전송 등)
+                console.log("낙찰자:", sucessfulBidEmail, "최종 가격:", sucessfulBidPrice);
+
+                await db.collection("auction").doc(productId).update({
+                    경매상태: "종료",
+                    낙찰자id: sucessfulBidId,
+                    낙찰자email: sucessfulBidEmail,
+                    낙찰가: sucessfulBidPrice,
+                });
+
+                // 필요한 경우 낙찰자에게 알림을 전송하는 로직을 추가할 수 있습니다.
+            } catch (error) {
+                console.error("경매 종료 처리 중 오류 발생:", error);
+            }
+        }
+
+        //입찰 기능 함수
+        async function placeBid(productId, uid){
+            var bidPrice = $("#bidInput").val();    // 입력받은 금액 가져오기
+
+            var auctionDB = await db.collection("auction").doc(productId).get();    
+            var currBid = auctionDB.data().현재입찰가;  
+            var userDB = await db.collection("user-id").doc(uid).get();
+
+            //연속 입찰 방지 로직
+            var inaRow = false;
+            inaRow = await preventConsecutiveBidding(productId, uid)
+            if (inaRow == true){
+                alert("연속으로 입찰할 수 없습니다.")
+                return;
+            }
+
+            // 판매자 입찰 방지
+            var sellerId =  await auctionDB.data().판매자id;
+            if(uid === sellerId){
+                alert("판매자는 자신의 상품에 입찰할 수 없습니다.")
+                return;
+            }
+
+            // 입찰 반영하기
+            if(parseInt(bidPrice) > parseInt(currBid)){ 
+                await db.collection("auction").doc(productId).update({
+                    현재입찰가: bidPrice,
+                    현재입찰자id: uid
+                });
+                await db.collection("auction").doc(productId).collection("curr_bidders").add({
+                    입찰시간: firebase.firestore.FieldValue.serverTimestamp(),
+                    현재입찰가: bidPrice,
+                    현재입찰자id: uid,
+                    현재입찰자email: userDB.data().email
+                })
+                alert("입찰이 성공적으로 완료되었습니다!");
+                await showBidUpdates(productId);
+                //location.reload(true)
+
+            } else{
+                alert("입찰 금액이 현재 입찰가보다 높아야 합니다.");
+                location.reload(true);
+            }
+        }
+
+        // 연속 입찰 방지 함수  
+        async function preventConsecutiveBidding(productId, uid){
+            currBidderDB = await db.collection("auction").doc(productId).collection("curr_bidders")
+            .orderBy("입찰시간", "desc").limit(1).get();
+            var inaRow = false;
+            if(!currBidderDB.empty){
+                const currBidder = currBidderDB.docs[0].data();
+                if(currBidder.현재입찰자id == uid){
+                    inaRow = true;
+                }
+            }else{
+                return;
+            }
+            return inaRow;
+        }
+
+        //실시간 입찰 정보 호출 함수
+        let isListenerSet = false;  //함수 중복 호출 막기 위함
+        async function showBidUpdates(productId) {      
+            if (!isListenerSet) {
+                // 'curr_bidders' 서브컬렉션에 대한 실시간 리스너 설정
+                await db.collection("auction").doc(productId).collection("curr_bidders")
+                .orderBy("입찰시간", "asc")
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        // 새로운 문서가 추가되었을 때만 처리
+                        if (change.type === "added") {
+                            const data = change.doc.data();
+
+                            //현재 입찰가 화면
+                            $('#current_bid').text(data.현재입찰가);
+
+                            //실시간 입찰 정보 화면
+                            const newItem = `
+                                <ul>
+                                    <li>${data.현재입찰자email}님이 ${data.현재입찰가}원에 입찰하셨습니다.</li>
+                                </ul>`;
+                            $('.showBid').append(newItem);
+                            // 입찰 수 세기
+
+                        }
+                    });
+                });
+                isListenerSet = true; // 리스너가 설정되었다고 표시
+                //$('.showBid').append('<ul></ul>');  //새 입찰 정보 담기 위해서 초기화시킴
+            }
+        }
+
+        //입찰수 세는 함수
+        async function countBid(productId){
+            var bidDB = await db.collection("auction").doc(productId).collection("curr_bidders")
+            .onSnapshot(snapshot => {
+                const count = snapshot.docs.length; // 입찰수 세기
+                console.log("입찰수", count);
+                db.collection("auction").doc(productId).update({
+                    입찰수: count 
+                })
+            });
+        }
+    </script>
+</body>
+</html>

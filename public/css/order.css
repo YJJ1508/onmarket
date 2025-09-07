@@ -1,0 +1,30 @@
+.body{
+    margin: 50px 200px;
+}
+.body_content{
+    margin-left: 50px;
+    margin-top: 15px;
+}
+.show_order{
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    border: 2px solid white;
+    background-color: white; 
+    padding: 50px; /* 내부 여백 */
+    margin-bottom: 30px; /* 각 주문 내역 사이의 여백 */
+    color: black; 
+    box-shadow: 0 4px 8px rgba(0.1,0.1,0.1,0.2);
+    border-radius: 10px; 
+}
+.order_details1{
+    margin-left: 20px;
+    border-right: 2px solid #ddd
+}
+.order_details1, .order_details2 {
+    flex: 1; /* 내부 요소들이 동일한 비율로 공간을 차지하도록 함 */
+    padding: 10px; /* 여백 추가 */
+}
+.order_details2{
+    margin-left: 20px;
+}

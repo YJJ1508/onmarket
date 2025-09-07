@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ON-Market</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <link rel="icon" href="/images/5572662.png" type="/images/5572662.png">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="form-group" id="loginForm">
+            <div class="on" style="display: flex; justify-content: center;">
+                <img style="width: 70px; margin-right: 10px;" src="images/5572662.png">
+                <h1 style="color: #f4511e;"><a href="/index.html" style="text-decoration: none; color: #f4511e;">ON</a>
+                </h1>
+            </div>
+            <input type="email" id="loginEmail" placeholder="이메일">
+            <input type="password" id="loginPassword" placeholder="비밀번호">
+            <button style="margin-top: 10px; font-weight: bold;" onclick="login()">로그인</button>
+            <div class="toggle-container">
+                <button onclick="toggleForm('signup')">회원가입</button>
+            </div>
+        </div>
+        <div class="form-group" id="signupForm" style="display: none;">
+            <div class="on" style="display: flex; justify-content: center;">
+                <img style="width: 70px; margin-right: 10px;" src="images/5572662.png">
+                <h1 style="color: #f4511e;"><a href="/index.html" style="text-decoration: none; color: #f4511e;">ON</a>
+                </h1>
+            </div>
+            <h4>ON-Market에 오신 것을 환영합니다!</h4>
+            <input type="text" id="name" placeholder="이름">
+            <input type="email" id="email" placeholder="이메일">
+            <input type="password" id="password" placeholder="비밀번호 (영문 조합 6자리)">
+            <button style="margin-top: 10px; font-weight: bold;" onclick="signup()">회원가입</button>
+        </div>
+        <img src="images/ezgif.com-animated-gif-maker.gif" alt="success check" class="success-check"
+            style="display: none; margin-top: 20px; width: 120px; height: 90px;" id="successCheck">
+    </div>
+
+    <script>
+        function toggleForm(formType) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            if (formType === 'signup') {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            } else if (formType === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                // 회원가입 폼의 입력 필드 지우기
+                document.getElementById('name').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+            }
+        }
+
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.firestore();
+
+        function signup() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // 사용자가 생성된 후에 Firestore에 사용자 정보 저장
+                    db.collection("user-id").doc(userCredential.user.uid).set({
+                        name: name,
+                        email: email
+                    })
+                        .then(() => {
+                            console.log("Document written with ID: ", userCredential.user.uid);
+                            showSuccessCheck();
+                        })
+                        .catch((error) => {
+                            console.error("Error adding document: ", error);
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error signing up: ", error);
+                });
+        }
+
+        function showSuccessCheck() {
+            const successCheck = document.getElementById('successCheck');
+            successCheck.style.display = 'block';
+            setTimeout(() => {
+                successCheck.style.display = 'none';
+                toggleForm('login');
+            }, 1750); // 1.85초 후에 체크 표시 숨김
+        }
+
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // 사용자가 로그인한 상태
+                // 사용자 정보를 로컬 스토리지에 저장
+                localStorage.setItem('user', JSON.stringify(user));
+                // 현재 페이지가 login.html일 경우, 페이지에 머물기
+                if (window.location.pathname === "/login.html") {
+                    console.log("login.html 페이지에 있습니다.");
+                } else {
+                    // 다른 페이지에서 login.html로 접근 시 index.html로 리다이렉트하지 않음
+                }
+            } else {
+                // 사용자가 로그아웃한 상태
+                // 로컬 스토리지에서 사용자 정보 제거
+                localStorage.removeItem('user');
+                // login.html 페이지로 리다이렉트
+                if (window.location.pathname !== "/login.html") {
+                    window.location.href = "/login.html";
+                }
+            }
+        });
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    console.log("Successfully logged in!");
+                    // 로그인 후에 index.html로 이동
+                    window.location.href = "/index.html";
+                })
+                .catch((error) => {
+                    console.error("Error logging in: ", error);
+                });
+        }
+
+        function logout() {
+            firebase.auth().signOut().then(() => {
+                localStorage.removeItem('user'); // 로그아웃 시 로컬 스토리지에서 사용자 정보 제거
+            }).catch((error) => {
+                console.error("Error during logout", error);
+            });
+        }
+        
+        document.getElementById('loginEmail').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        });
+
+        document.getElementById('loginPassword').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
+</body>
+
+</html>

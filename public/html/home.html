@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/e1a2c43e41.js" crossorigin="anonymous"></script>
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts Link For Icons -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+    <script src="script.js" defer></script>
+    <link rel="icon" href="/images/5572662.png" type="/images/5572662.png">
+
+    <title>ON-MARKET</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig) 
+    </script>
+
+    <script>
+        function formatNumberToKoreanStyle(number) {
+            return number.toLocaleString('ko-KR');
+        }
+
+
+        let viewCount = 0;
+
+        function incrementViewCount() {
+            viewCount++;
+            document.getElementById('countDisplay').innerText = viewCount;
+        }
+
+        const db = firebase.firestore();
+
+
+        //방금 등록한 상품
+        $(document).ready(function () {
+            const itemsPerPage = 4;
+            let displayedItems = 0;
+
+            function fetchProducts() {
+                db.collection('product').orderBy('날짜', 'desc').limit(displayedItems + itemsPerPage).get()
+                    .then((snapshot) => {
+                        let currentCount = 0;
+
+                        snapshot.forEach((doc) => {
+                            if (currentCount < displayedItems) {
+                                currentCount++;
+                                return;
+                            }
+
+                            let formattedPrice = Number(doc.data().가격).toLocaleString();
+                            let priceInfo = doc.data().무료나눔 ? '무료 나눔' : `${formattedPrice}원`;
+
+                            var 템플릿 = `
+                        <div class="item">
+                            <a href="/detail.html?id=${doc.id}" class="item_link" data-id="${doc.id}">
+                                <img class="item_image" src="${doc.data().이미지1}" style="border-radius: 12px;">
+                                <h2 class="item_name">${doc.data().제목}</h2>
+                                <h2 class="item_cost">${priceInfo}</h2>
+                                <h1 class="item_place">${doc.data().주소}</h1>
+                                <div class="like_chating">
+                                    <span class="like">조회수 ${doc.data().조회수}</span>
+                                    <span>&nbsp;&nbsp;・&nbsp;&nbsp;</span>
+                                    <span class="chat">채팅 ${doc.data().채팅데이터}</span>
+                                    <span>&nbsp;&nbsp;・&nbsp;&nbsp;</span>
+                                    <span class="chat">관심 ${doc.data().관심}</span>
+                                </div>
+                            </a>
+                        </div>`;
+
+                            $('.item_box_1').append(템플릿); // 상품 추가
+                            currentCount++;
+                        });
+
+                        displayedItems += currentCount;
+                        arrangeGrid();
+
+                        // 새로 추가된 아이템에 직접 CSS를 설정하여 너비를 고정
+                        $('.item_box_1 .item').slice(displayedItems - currentCount).css('width', 'calc(25% - 20px)');
+                    })
+                    .catch((error) => {
+                        console.log("Error getting documents: ", error);
+                    });
+            }
+
+            fetchProducts();
+
+            $('.more_item_btn1').on('click', function () {
+                fetchProducts();
+            });
+
+            function arrangeGrid() {
+                const rowCount = Math.ceil(displayedItems / 4);
+                $('.item_box_1').css('grid-template-rows', `repeat(${rowCount}, auto)`);
+
+                if (displayedItems >= 4) {
+                    $('.item_box_1 .item').css('display', 'block');
+                    $('.item_box_1 .item').css('float', 'left');
+                }
+            }
+        });
+
+
+
+        //실시간 인기상품 정렬
+
+        $(document).ready(function () {
+            const itemsPerPage = 4;
+            let displayedItems = 0;
+
+            function fetchProducts() {
+                db.collection('product').orderBy('조회수', 'desc').limit(displayedItems + itemsPerPage).get()
+                    .then((snapshot) => {
+                        let currentCount = 0;
+
+                        snapshot.forEach((doc) => {
+                            if (currentCount < displayedItems) {
+                                currentCount++;
+                                return;
+                            }
+
+                            let formattedPrice = Number(doc.data().가격).toLocaleString();
+                            let priceInfo = doc.data().무료나눔 ? '무료 나눔' : `${formattedPrice}원`;
+
+                            var 템플릿 = `
+                                <div class="item">
+                                    <a href="/detail.html?id=${doc.id}" class="item_link" data-id="${doc.id}">
+                                        <img class="item_image" src="${doc.data().이미지1}" style="border-radius: 12px;">
+                                        <h2 class="item_name">${doc.data().제목}</h2>
+                                        <h2 class="item_cost">${priceInfo}</h2>
+                                        <h1 class="item_place">${doc.data().주소}</h1>
+                                        <div class="like_chating">
+                                            <span class="like">조회수 ${doc.data().조회수}</span>
+                                            <span>&nbsp;&nbsp;・&nbsp;&nbsp;</span>
+                                            <span class="chat">채팅 ${doc.data().채팅데이터}</span>
+                                            <span>&nbsp;&nbsp;・&nbsp;&nbsp;</span>
+                                            <span class="chat">관심 ${doc.data().관심}</span>
+                                        </div>
+                                    </a>
+                                </div>`;
+
+                            $('.item_box_2').append(템플릿); // 상품 추가
+                            currentCount++;
+                        });
+
+                        displayedItems += currentCount;
+                        arrangeGrid();
+
+                        // 새로 추가된 아이템에 직접 CSS를 설정하여 너비를 고정
+                        $('.item_box_2 .item').slice(displayedItems - currentCount).css('width', 'calc(25% - 20px)');
+                    })
+                    .catch((error) => {
+                        console.log("Error getting documents: ", error);
+                    });
+            }
+
+            fetchProducts();
+
+            $('.more_item_btn2').on('click', function () {
+                fetchProducts();
+            });
+
+            function arrangeGrid() {
+                const rowCount = Math.ceil(displayedItems / 4);
+                $('.item_box_2').css('grid-template-rows', `repeat(${rowCount}, auto)`);
+
+                if (displayedItems >= 4) {
+                    $('.item').css('display', 'block');
+                    $('.item').css('float', 'left');
+                }
+            }
+        });
+
+        $(document).on('click', '.item_link', function (event) {
+            event.preventDefault(); // 기본 이벤트 방지
+            window.location.href = $(this).attr('href');
+            const itemId = $(this).data('id'); // 클릭한 아이템의 ID 가져오기
+
+            // 해당 아이템의 조회수를 증가시키기 위해 Firestore에서 해당 아이템 도큐먼트 가져오기
+            const productRef = db.collection('product').doc(itemId);
+
+            // Firestore에서 아이템 도큐먼트를 가져와서 조회수 필드를 증가시키기
+            productRef.get().then((doc) => {
+                if (doc.exists) {
+                    // 현재 조회수 가져오기
+                    let viewCount = (doc.data().조회수 || 0) + 1;
+
+                    // 조회수 업데이트
+                    productRef.update({ 조회수: viewCount }).then(() => {
+                        console.log("View count updated successfully!");
+                    }).catch((error) => {
+                        console.error("Error updating view count:", error);
+                    });
+                } else {
+                    console.log(`Document with ID ${itemId} does not exist!`);
+                }
+            }).catch((error) => {
+                console.error("Error getting document:", error);
+            });
+        });
+
+
+
+        // 아이템 클릭 이벤트 처리
+        $('.item_link').on('click', function (event) {
+
+            // 클릭한 아이템의 도큐먼트 ID 가져오기
+            let itemId = $(this).data('id');
+
+            console.log("Clicked Item ID:", itemId); // 클릭한 아이템의 ID 출력
+            if (itemId === undefined) {
+                console.log("data-id is undefined!");
+                return;
+            }
+
+            updateViewCount(itemId);  // 조회수 업데이트 함수 호출
+        });
+
+
+        function updateViewCount(itemId) {
+            const productRef = db.collection('product').doc(itemId);
+
+            // Firestore 트랜잭션 사용하여 viewCount 업데이트
+            db.runTransaction((transaction) => {
+                return transaction.get(productRef).then((doc) => {
+                    if (!doc.exists) {
+                        throw new Error(`Document with ID ${itemId} does not exist!`);
+                    }
+
+                    // 현재 조회수 가져오기
+                    let viewCount = (doc.data().조회수 || 0) + 1;
+
+                    // 조회수 업데이트
+                    transaction.update(productRef, { 조회수: viewCount });
+                });
+            }).then(() => {
+                console.log("View count updated successfully!");
+            }).catch((error) => {
+                console.log("Transaction failed: ", error.message);
+            });
+        }
+    </script>
+
+    <!-- 로그인 상태를 확인하고 업로드 버튼 활성화 또는 비활성화하는 스크립트 추가 -->
+    <script>
+        // 페이지가 로드될 때 로그인 상태 확인
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                // 사용자가 로그인되어 있는 경우
+                // 업로드 버튼 활성화
+                document.querySelector('.sell_button').removeAttribute('disabled');
+            } else {
+                // 사용자가 로그인되어 있지 않은 경우
+                // 업로드 버튼 비활성화
+                document.querySelector('.sell_button').setAttribute('disabled', 'disabled');
+            }
+        });
+    </script>
+
+    <script>
+        // 페이지가 로드될 때 사용자의 로그인 상태 확인
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                // 사용자가 로그인되어 있는 경우
+                // 이메일 주소를 가져와서 표시
+                var userEmail = user.email;
+                document.getElementById('userStatus').innerText = '로그인 중: ' + userEmail;
+            } else {
+                // 사용자가 로그인되어 있지 않은 경우
+                // 로그인 상태를 표시하지 않음
+                document.getElementById('userStatus').innerText = '';
+            }
+        });
+    </script>
+
+    <script>
+        // 페이지가 로드될 때 사용자의 로그인 상태 확인
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                // 사용자가 로그인되어 있는 경우
+                // 이메일 주소를 가져와서 표시
+                var userEmail = user.email;
+                document.getElementById('userStatus').innerText = '로그인 중: ' + userEmail;
+            } else {
+                // 사용자가 로그인되어 있지 않은 경우
+                // 로그인 상태를 표시하지 않음
+                document.getElementById('userStatus').innerText = '';
+            }
+        });
+
+        // 로그아웃 함수 정의
+        function logout() {
+            firebase.auth().signOut().then(function () {
+                // 로그아웃 성공 시 페이지 새로고침
+                location.reload();
+            }).catch(function (error) {
+                // 로그아웃 중 에러 발생 시 콘솔에 출력
+                console.log(error.message);
+            });
+        }
+    </script>
+
+    <script>
+        //일반 계정 로그인
+        firebase.auth().onAuthStateChanged(function (user) {
+            const userInfo = document.getElementById('userInfo');
+
+            if (user) {
+                // 사용자가 로그인되어 있는 경우
+                const displayName = user.displayName;
+                const uid = user.uid;
+
+                // Firestore에서 사용자 문서 가져오기
+                const userDocRef = firebase.firestore().collection('user-id').doc(uid);
+
+                userDocRef.get().then(function (doc) {
+                    if (doc.exists) {
+                        // 문서가 존재하는 경우 사용자의 이름 값을 가져와서 UI에 표시
+                        const name = doc.data().name;
+                        console.log("사용자 이름:", name);
+                        // UI 업데이트
+                        userInfo.innerHTML = ''; // 부모 요소 초기화
+
+                        // 이미지 추가
+                        const image = document.createElement('img');
+                        image.src = '/images/bluecheck.png';
+                        image.alt = '로그인 중 이미지';
+                        image.classList.add('user-image'); // 클래스 추가
+                        userInfo.appendChild(image); // 이미지 추가
+
+                        // 이름 추가
+                        const userName = document.createElement('div');
+                        userName.innerText = name;
+                        userInfo.appendChild(userName); // 이름 추가
+
+                    } else {
+                        console.log("해당 사용자의 문서가 존재하지 않습니다.");
+                    }
+                }).catch(function (error) {
+                    console.log("문서를 가져오는 중 에러 발생:", error);
+                });
+
+            } else {
+                // 사용자가 로그인되어 있지 않은 경우
+                userInfo.innerHTML = ''; // 부모 요소 초기화
+            }
+        });
+    </script>
+
+    <script>
+        //비즈니스 계정 로그인
+        firebase.auth().onAuthStateChanged(function (user) {
+            const userInfo = document.getElementById('userInfo');
+
+            if (user) {
+                // 사용자가 로그인되어 있는 경우
+                const displayName = user.displayName;
+                const uid = user.uid;
+
+                // Firestore에서 사용자 문서 가져오기
+                const userDocRef = firebase.firestore().collection('biz-id').doc(uid);
+
+                userDocRef.get().then(function (doc) {
+                    if (doc.exists) {
+                        // 문서가 존재하는 경우 사용자의 이름 값을 가져와서 UI에 표시
+                        const name = doc.data().name;
+                        console.log("사용자 이름:", name);
+                        // UI 업데이트
+                        userInfo.innerHTML = ''; // 부모 요소 초기화
+
+                        // 이미지 추가
+                        const image = document.createElement('img');
+                        image.src = '/images/bizicon.png';
+                        image.alt = '로그인 중 이미지';
+                        image.classList.add('user-image'); // 클래스 추가
+                        userInfo.appendChild(image); // 이미지 추가
+
+                        image.style.marginRight = '5px'; // 좌측 마진 조정
+                        image.style.marginTop = '3px'; // 좌측 마진 조정
+
+
+                        // 상호명 추가
+                        const userName = document.createElement('div');
+                        userName.innerText = name;
+                        userInfo.appendChild(userName); // 상호명 추가
+
+                    } else {
+                        console.log("해당 사용자의 문서가 존재하지 않습니다.");
+                    }
+                }).catch(function (error) {
+                    console.log("문서를 가져오는 중 에러 발생:", error);
+                });
+
+            } else {
+                // 사용자가 로그인되어 있지 않은 경우
+                userInfo.innerHTML = ''; // 부모 요소 초기화
+            }
+        });
+    </script>
+
+    <script>
+        firebase.auth().onAuthStateChanged(function (user) {
+            const loginButton = document.getElementById('loginButton');
+
+            if (user) {
+                // 사용자가 로그인되어 있는 경우
+                loginButton.innerText = '로그아웃';
+                loginButton.addEventListener('click', function () {
+                    firebase.auth().signOut().then(function () {
+                        localStorage.clear(); // 로컬 스토리지에 저장된 user에 대한 정보 삭제 로직
+                        console.log('로그아웃 성공');
+                    }).catch(function (error) {
+                        console.log('로그아웃 중 에러 발생:', error);
+                    });
+                });
+            } else {
+                // 사용자가 로그인되어 있지 않은 경우
+                loginButton.innerText = '로그인';
+                loginButton.addEventListener('click', function () {
+                    // 로그인 페이지로 이동
+                    window.location.href = '/login.html';
+                });
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            // 검색어 제출 시
+            $('#searchForm').submit(function (event) {
+                event.preventDefault();
+                var searchValue = $('#search').val(); // 검색어
+
+                window.location.href = 'searchResults.html?q=' + encodeURIComponent(searchValue);
+
+                /*
+                // 1. DB 저장 구현
+                db.collection("searchHistory").where("searchWord", "==", searchValue).get().then((결과) => {
+                    // 이미 존재하는 검색어일 때
+                    if (!결과.empty) {
+                        결과.forEach((doc) => {
+                            // 빈도수 증가 및 검색 시간 업데이트
+                            db.collection("searchHistory").doc(doc.id).update({
+                                searchFrequency: firebase.firestore.FieldValue.increment(1),
+                                searchTime: firebase.firestore.Timestamp.now()
+                            });
+                        });
+                    } else {
+                        // 새로운 검색어일 땐 DB에 추가
+                        db.collection("searchHistory").add({
+                            searchWord: searchValue,
+                            searchFrequency: 1,
+                            searchTime: firebase.firestore.Timestamp.now()
+                        });
+                    }
+
+                });
+                */
+            });
+
+            // 인기 검색어 로직 구현 함수
+            function getPopularSearchTerms() {
+                db.collection("searchHistory")
+                    .orderBy("searchTime", "desc") // 최근 검색 시간 순으로
+                    .orderBy("searchFrequency", "desc") // searchFrequency 순으로 정렬
+                    .limit(8) // 상위 8개만 선택
+                    .get()
+                    .then((결과) => {
+                        var popularTerms = "";
+                        결과.forEach((doc) => {
+                            var D = doc.data();
+                            if (D.searchFrequency >= 5) {
+                                popularTerms += `<div class="popularSearch_term">
+                        <a class="content_popularSearch" href="/searchResults.html?q=${D.searchWord}">${D.searchWord}</a>
+                        </div>`;
+                            }
+
+                        });
+                        $(".keyword_wrap").append(popularTerms);
+                    });
+            }
+            // 페이지 로드 시 인기 검색어 표시
+            getPopularSearchTerms();
+        });    
+    </script>
+
+
+    <div class="frame">
+        <div class="header">
+            <div class="header_wrap">
+                <div class="header_content">
+                    <img src="/images/5572662.png" style="width: 70px; padding-right: 10px;">
+                    <h1 style="font-size: 27px; color: #f4511e;"><a href="/"
+                            style="color: #f4511e; text-decoration: none;">ON</a></h1>
+                </div>
+
+                <div class="header_content">
+                    <form id="searchForm" action="#">
+                        <input class="search_input" id="search" name="q" type="text" placeholder="어떤 상품을 찾으시나요?">
+                        <button class="search_button" type="submit"><i
+                                class="fa-solid fa-magnifying-glass"></i></button>
+                    </form>
+                </div>
+
+                <div class="header_content">
+                    <div id="userInfo" class="user-info"></div>
+                    <a href="/myprofile.html" id="basketLink" >
+                        <button style="cursor: pointer;" type="submit" class="basket_button"><i class="fa-solid fa-cart-shopping"></i></button>
+                    </a>
+                    <a href="/myprofile.html" id="profileLink">
+                        <button type="submit" class="login_button"><i class="fa-solid fa-user"></i></button>
+                    </a>
+                    <button id="loginButton" class="logoutButton"></button>
+
+                    <!-- 채팅하기 버튼 추가 -->
+                    <a href="chat.html" style="margin-left: 10px;">
+                        <button id="chat_button" class="chat_button"
+                            style="background-color: #4CAF50; color: white; border: none; padding: 10px 15px; text-align: center; text-decoration: none; display: inline-block; font-size: 1.0rem; margin: 4px 2px; cursor: pointer; border-radius: 5px;">
+                            <i class="fa-solid fa-comment-dots" style="margin-right: 5px;"></i> 채팅하기
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).ready(async function () {
+                $('#basketLink').click(function (event) {
+                    event.preventDefault();
+                    firebase.auth().onAuthStateChanged((user) => {
+                        if (!user) {
+                            alert("로그인 후 이용해주세요.");
+                            window.location.href = "/login.html"; // 로그인 페이지로 리다이렉션
+                        } else {
+                            window.location.href = "/myprofile.html"; // 로그인이 되어 있다면, myprofile.html로 이동
+                        }
+                    });
+                });
+                $('#profileLink').click(function (event) {
+                    event.preventDefault();
+                    firebase.auth().onAuthStateChanged((user) => {
+                        if (!user) {
+                            alert("로그인 후 이용해주세요.");
+                            window.location.href = "/login.html"; // 로그인 페이지로 리다이렉션
+                        } else {
+                            window.location.href = "/myprofile.html"; // 로그인이 되어 있다면, myprofile.html로 이동
+                        }
+                    });
+                });
+            });
+
+            $()
+
+        </script>
+
+        <nav class="navigator">
+
+            <ul class="navigator_menu">
+                <li><a href="/product.html">중고거래</a></li>
+                <li><a href="/nearby.html">동네생활</a></li>
+                <li><a href="/auction.html">경매</a></li>
+                <li><a href="/marketprice.html">시세조회</a></li>
+            </ul>
+        </nav>
+
+        <div class="body">
+            <div class="body_content_box_1">
+                <div class="body_content_1">
+                    <div class="body_wrap">
+                        <h2 class="big"><br>반갑습니다!</h2>
+                        <p class="small">판매하고 싶은 물건이 있으신가요?<br><br>지금 바로 물건을 등록해보세요.</p>
+                        <br>
+                        <a href="/upload.html">
+                            <button type="submit" class="sell_button"><span>판매하기</span></button>
+                        </a>
+                    </div>
+                    <div class="body_wrap">
+                        <img class="image_1" src="https://ifh.cc/g/XZbKw9.jpg" width="650" height="auto">
+                    </div>
+                </div>
+            </div>
+
+            <div class="body_content_box_4">
+                <div class="body_content_4">
+
+                    <div class="body_wrap">
+                        <img class="image_2" src="https://ifh.cc/g/3GVN7W.png" width="430" height="auto">
+                    </div>
+
+                    <div class="body_wrap">
+                        <h2 class="big">중고거래,</h2>
+                        <h2 class="big">이제 AI와 함께하세요!</h2>
+                        <p class="small">AI 챗봇은 24시간 운영되어 여러분과 상담합니다.</p>
+
+                        <br>
+                        <a href="#">
+                            <button type="submit" class="ai_button"><span>AI 서비스 바로가기</span></button>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="body_content_box_3" style="width: 1024px; margin: auto;">
+                <h1 class="content_box_3_title" style="margin-left: 10px;">방금 등록된 상품</h1>
+            </div>
+
+            <div class="more_item_wrap">
+                <button class="more_item_btn1" style="cursor: pointer;">상품 더보기</button>
+            </div>
+
+            <div class="body_content_box_2">
+                <div class="item_box">
+                    <div class="item_box_1 mt-3">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="body_content_box_5" style="width: 1024px; margin: auto;">
+                <h1 class="content_box_5_title" style="margin-left: 10px;">실시간 상품</h1>
+            </div>
+
+            <div class="more_item_wrap">
+                <button class="more_item_btn2" style="cursor: pointer;">상품 더보기</button>
+            </div>
+
+            <div class="body_content_box_6">
+                <div class="item_box">
+                    <div class="item_box_2">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+
+        <ul class="footer_icons">
+            <li><a href="https://www.facebook.com/?locale=en_KR">
+                    <i class="fa-brands fa-facebook"></i>
+                </a></li>
+
+            <li><a
+                    href="https://www.instagram.com/sem/campaign/emailsignup/?campaign_id=13530338586&extra_1=s%7Cc%7C547419126431%7Ce%7Cinstagrame%7C&placement=&creative=547419126431&keyword=instagrame&partner_id=googlesem&extra_2=campaignid%3D13530338586%26adgroupid%3D126262418054%26matchtype%3De%26network%3Dg%26source%3Dnotmobile%26search_or_content%3Ds%26device%3Dc%26devicemodel%3D%26adposition%3D%26target%3D%26targetid%3Dkwd-299214942136%26loc_physical_ms%3D1009893%26loc_interest_ms%3D%26feeditemid%3D%26param1%3D%26param2%3D&gad_source=1&gclid=Cj0KCQjwzZmwBhD8ARIsAH4v1gUPvgu6tdqJm4fOsw0P0rsYncgBNaGc7qM6__SJUu5tKHzwm5yOkwMaAmBCEALw_wcB">
+                    <i class="fa-brands fa-instagram"></i>
+                </a></li>
+
+            <li><a href="#">
+                    <i class="fa-brands fa-youtube"></i>
+                </a></li>
+
+            <li><a href="#">
+                    <i class="fa-brands fa-twitter"></i>
+                </a></li>
+        </ul>
+
+        <div class="footer_wrap">
+            <button class="footer_title">최근 인기검색어</button>
+        </div>
+
+        <div class="keyword_wrap">
+        </div>
+    </div>
+
+
+    <button class="chatbot-toggler">
+        <span class="material-symbols-rounded">mode_comment</span>
+        <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <div class="chatbot">
+        <header>
+            <h2>ON Market Chatbot</h2>
+            <span class="close-btn material-symbols-outlined">close</span>
+        </header>
+        <ul class="chatbox">
+            <li class="chat incoming">
+                <span class="material-symbols-outlined">smart_toy</span>
+                <p>안녕하세요 ON Market 챗봇입니다👋<br>무엇을 도와드릴까요?</p>
+            </li>
+
+
+            <!-- API 호출을 최소화하기 위한 예상질문 추가 -->
+            <li class="chat incoming">
+                <span class="material-symbols-outlined">smart_toy</span>
+                <div class="suggestions">
+                    <ul>
+                        <div
+                            style="background-color: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px; max-width: 600px; margin: auto;">
+                            <p style="text-align: center; font-size: 1.2em; font-weight: bold; color: #333;">❓ 자주 하는 질문들 ❓</p>
+                            <ul style="list-style-type: none; padding: 0;">
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">🤔 중고 거래할 때 무조건 네고를 해야 할까요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">🔍 중고 거래에서 어떤 품목이 인기가 가장 많은가요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">📦 직거래 말고 택배 거래를 해도 괜찮을까요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">🔄 거래 후 반품이 가능한가요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">⭐ 중고 거래 플랫폼 중 어느 곳이 가장 신뢰할 만한가요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">💼 중고 거래시 세금 문제가 생길 수 있나요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">💰 중고 거래에서 가격을 어떻게 책정하나요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">🚨 안전한 거래를 위해 어떤 점을 주의해야 하나요?</li>
+                                <li class="suggestion" style="margin-bottom: 5px; font-size: 1em; color: #555;">⚠️ 중고 거래사기를 당했는데 어떻게 대처해야 할까요?</li>
+                            </ul>
+                        </div>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+        <div class="chat-input">
+            <textarea id="user-input" placeholder="메시지를 입력해주세요..." spellcheck="false" required></textarea>
+            <span id="send-btn" class="material-symbols-rounded">send</span>
+        </div>
+    </div>
+
+    <script src="apikey.js"></script>
+    <script>
+        const chatbotToggler = document.querySelector(".chatbot-toggler");
+        const closeBtn = document.querySelector(".close-btn");
+        const chatbox = document.querySelector(".chatbox");
+        const chatInput = document.querySelector(".chat-input textarea");
+        const sendChatBtn = document.querySelector(".chat-input span");
+
+        let conversationHistory = [];
+        let cachedQuestion = null;
+        let cachedResponse = null;
+
+        const API_KEY = "OPENAI_API_KEY";
+        const inputInitHeight = chatInput.scrollHeight;
+
+        const createChatLi = (message, className) => {
+            const chatLi = document.createElement("li");
+            chatLi.classList.add("chat", `${className}`);
+            let chatContent = className === "outgoing" ? `<p></p>` : `<span class="material-symbols-outlined">smart_toy</span><p></p>`;
+            chatLi.innerHTML = chatContent;
+            chatLi.querySelector("p").textContent = message;
+            return chatLi;
+        }
+
+        const generateResponse = (chatElement) => {
+            const messageElement = chatElement.querySelector("p");
+
+            if (cachedQuestion && conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].content === cachedQuestion) {
+                messageElement.textContent = cachedResponse;
+                chatbox.scrollTo(0, chatbox.scrollHeight);
+                return;
+            }
+
+            const API_URL = "https://api.openai.com/v1/chat/completions";
+            const requestOptions = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: conversationHistory
+                })
+            };
+
+            fetch(API_URL, requestOptions)
+                .then(res => res.json())
+                .then(data => {
+                    const response = data.choices[0].message.content.trim();
+                    messageElement.textContent = response;
+
+                    cachedQuestion = conversationHistory[conversationHistory.length - 1].content;
+                    cachedResponse = response;
+
+                    conversationHistory.push({ role: "assistant", content: response });
+                })
+                .catch(() => {
+                    messageElement.classList.add("error");
+                    messageElement.textContent = "문제가 발생했습니다. 다시 시도해 주세요.";
+                })
+                .finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
+        }
+
+        const handleChat = (userMessage) => {
+            if (!userMessage) return;
+
+            chatInput.value = "";
+            chatInput.style.height = `${inputInitHeight}px`;
+
+            chatbox.appendChild(createChatLi(userMessage, "outgoing"));
+            chatbox.scrollTo(0, chatbox.scrollHeight);
+
+            conversationHistory.push({ role: "user", content: userMessage });
+
+            setTimeout(() => {
+                const incomingChatLi = createChatLi("챗봇이 답변 중입니다...", "incoming");
+                chatbox.appendChild(incomingChatLi);
+                chatbox.scrollTo(0, chatbox.scrollHeight);
+                generateResponse(incomingChatLi);
+            }, 600);
+        }
+
+        chatInput.addEventListener("input", () => {
+            chatInput.style.height = `${inputInitHeight}px`;
+            chatInput.style.height = `${chatInput.scrollHeight}px`;
+        });
+
+        chatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+                e.preventDefault();
+                handleChat(chatInput.value.trim());
+            }
+        });
+
+        sendChatBtn.addEventListener("click", () => handleChat(chatInput.value.trim()));
+        closeBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
+        chatbotToggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
+
+        document.querySelectorAll(".suggestion").forEach(suggestion => {
+            suggestion.addEventListener("click", (e) => {
+                const question = e.target.textContent;
+                const responses = {
+                    "🤔 중고 거래할 때 무조건 네고를 해야 할까요?": "중고 거래에서 네고는 선택 사항이에요. 판매자가 제시한 가격이 마음에 들면 그대로 구매하셔도 되고, 가격이 조금 부담스러우시면 예의 바르게 네고를 요청해보셔도 됩니다. 서로 존중하는 태도로 대화하면 좋은 거래를 할 수 있을 거예요.",
+                    "🔍 중고 거래에서 어떤 품목이 인기가 가장 많은가요?": "중고 거래에서는 전자기기, 특히 스마트폰, 노트북, 태블릿 등이 매우 인기가 많아요. 그 외에도 의류, 가전제품, 가구, 아웃도어 용품 등도 많은 사람들이 찾는 품목이랍니다. 트렌드에 따라 인기가 있는 품목이 달라질 수 있으니 참고하세요.",
+                    "📦 직거래 말고 택배 거래를 해도 괜찮을까요?": "네, 택배 거래도 충분히 안전하게 할 수 있어요. 다만, 거래 전에 판매자와 택배비와 배송 방법 등을 미리 협의하는 것이 중요해요. 또한, 거래 내역을 남기고, 안전한 결제 방식을 사용하는 것이 좋습니다.",
+                    "🔄 거래 후 반품이 가능한가요?": "중고 거래에서는 보통 반품이 어렵지만, 판매자와 미리 협의하여 반품 조건을 정해두는 것이 좋아요. 제품 상태에 대한 상세 설명과 사진을 잘 확인하고, 필요시 추가 질문을 통해 확실히 확인한 후 거래를 진행하는 것이 안전합니다.",
+                    "⭐ 중고 거래 플랫폼 중 어느 곳이 가장 신뢰할 만한가요?": "현재 우리나라 중고 거래 플랫폼으로는 당근마켓, 번개장터, 중고나라 등이 많이 사용되고 있어요. 하지만 저희 ON Market도 신뢰하고 이용하실 수 있도록 최선을 다하고 있으니 많은 이용 부탁드려요😊😊",
+                    "💼 중고 거래 시 세금 문제가 생길 수 있나요?": "개인 간의 소규모 중고 거래에서는 일반적으로 세금 문제가 발생하지 않아요. 하지만, 거래 금액이 크거나, 사업적으로 중고품을 판매하는 경우에는 세금 문제가 생길 수 있으니, 필요한 경우 전문가와 상담해보는 것이 좋습니다.",
+                    "💰 중고 거래에서 가격을 어떻게 책정하나요?": "중고 거래 가격은 제품의 상태, 원래 가격, 사용 기간, 시장 수요 등을 고려해서 책정해요. 비슷한 제품의 거래 가격을 참고하고, 상태에 따라 적절한 가격을 정하면 돼요. 합리적인 가격을 제시하면 원활한 거래가 이루어질 가능성이 높습니다.",
+                    "🚨 안전한 거래를 위해 어떤 점을 주의해야 하나요?": "안전한 거래를 위해서는 먼저 판매자나 구매자의 신뢰도를 확인하세요. 직거래 시에는 사람이 많은 공공장소에서 만나는 것이 좋고, 택배 거래 시에는 안전결제 시스템을 사용하는 것이 좋습니다. 또한, 거래 내역을 꼭 기록해두세요.",
+                    "⚠️ 중고 거래 사기를 당했는데 어떻게 대처해야 할까요?": "중고 거래 사기를 당했다면 즉시 거래한 플랫폼의 고객센터에 신고하고, 경찰에 고소장을 제출하세요. 가능한 모든 증거 자료를 모아두는 것이 중요해요. 거래 내역, 대화 내용, 송금 내역 등을 꼼꼼히 기록해두시면 도움이 됩니다."
+                };
+
+                chatbox.appendChild(createChatLi(question, "outgoing"));
+                chatbox.appendChild(createChatLi(responses[question], "incoming"));
+                chatbox.scrollTo(0, chatbox.scrollHeight);
+            });
+        });
+
+
+
+
+        document.querySelector('.ai_button').addEventListener('click', function (event) {
+            document.body.classList.toggle('show-chatbot');
+        });
+
+
+
+        // 상단 채팅하기 버튼에 대한 스크립트 코드
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                localStorage.setItem('user', JSON.stringify(user))
+            }
+        })
+
+        var 내uid = JSON.parse(localStorage.getItem('user')).uid
+
+
+        $(document).ready(function () {
+            $('#chat_button').click(function (event) {
+                event.preventDefault();
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (user) {
+                        // 사용자가 로그인 되어 있을 때
+                        window.location.href = "/chat.html";
+                    } else {
+                        // 사용자가 로그인 되어 있지 않을 때
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html";
+                    }
+                });
+            });
+        });
+
+
+    </script>
+
+    <script>
+        $(document).ready(async function () {
+            $('#chat_button').click(function (event) {
+                event.preventDefault();
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (!user) {
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html"; // 로그인 페이지로 리다이렉션
+                    } else {
+                    }
+                });
+            });
+        });
+    </script>
+
+
+    <style>
+        /* 추가된 CSS 코드 */
+        .suggestions {
+            margin-top: 10px;
+        }
+
+        .suggestions p {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .suggestions ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .suggestions .suggestion {
+            background: #e0e0e0;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .suggestions .suggestion:hover {
+            background: #bdbdbd;
+        }
+    </style>
+</body>
+
+</html>

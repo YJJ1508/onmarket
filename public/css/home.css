@@ -1,0 +1,1109 @@
+* {
+font-family: "Noto Sans KR", sans-serif;
+line-height: 1;
+}
+
+a {
+text-decoration: none;
+color: black;
+}
+
+.frame {
+margin: auto;
+display: flex;
+flex-direction: column;
+}
+
+
+.header_wrap {
+height: 100%;
+width: 1024px;
+margin: auto;
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+}
+
+.header_content {
+display: flex;
+justify-content: center;
+align-items: center;
+}
+
+.header_content form {
+display: flex;
+flex-direction: row;
+justify-content: space-evenly;
+align-items: center;
+}
+
+.search_input {
+box-shadow: 2px 2px 1px #041562;
+border-radius: 5px;
+border: none;
+width: 200px;
+height: 35px;
+transition: all 1s;
+color: #041562;
+}
+
+.search_input:focus {
+width: 400px;
+}
+
+.search_button {
+border: none;
+border-radius: 0.3rem;
+font-size: 1.0rem;
+font-weight: 600;
+margin: auto;
+display: flex;
+justify-content: center;
+align-items: center;
+background-color: white;
+margin-left: 5px;
+}
+
+.basket_button {
+border: none;
+border-radius: 0.3rem;
+font-size: 1.0rem;
+font-weight: 600;
+margin: auto;
+width: 40px;
+height: 40px;
+display: flex;
+justify-content: center;
+align-items: center;
+background-color: white;
+}
+
+.login_button {
+border: none;
+border-radius: 0.3rem;
+font-size: 1.0rem;
+font-weight: 600;
+margin: auto;
+width: 40px;
+height: 40px;
+display: flex;
+justify-content: center;
+align-items: center;
+background-color: white;
+}
+
+.login_button:hover {
+cursor: pointer;
+}
+
+.logoutButton {
+display: inline-block;
+padding: 10px 20px;
+font-size: 16px;
+font-weight: bold;
+text-align: center;
+text-decoration: none;
+border: none;
+border-radius: 4px;
+background-color: #f4511e;
+color: #FFFFFF;
+/* 흰색 텍스트 */
+cursor: pointer;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+/* 약한 그림자 */
+transition: background-color 0.3s ease;
+right: 80px;
+bottom: 17px;
+}
+
+.navigator {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 1024px;
+margin: auto;
+}
+
+.navigator_menu {
+display: flex;
+list-style: none;
+padding-left: 0;
+}
+
+.navigator_menu li {
+padding: 8px 12px;
+margin: 10px 30px;
+}
+
+.navigator_menu li:hover {
+background-color: #e1f5fe;
+border-radius: 5px;
+}
+
+
+
+.body {
+margin-top: 20px;
+display: flex;
+flex-direction: column;
+}
+
+.body_content_box_1 {
+display: flex;
+flex-direction: row;
+}
+
+.body_wrap {
+padding: 20px;
+width: 100%;
+}
+
+.body_content_1 {
+height: 400px;
+width: 1024px;
+margin: auto;
+background-color: #fbf7f2;
+display: flex;
+flex-direction: row;
+}
+
+
+.category_button {
+border: none;
+border-radius: 0.3rem;
+font-size: 1.0rem;
+font-weight: 600;
+margin: auto;
+width: 40px;
+height: 40px;
+display: flex;
+justify-content: center;
+align-items: center;
+background-color: white;
+}
+
+
+
+.sell_button {
+border-radius: 4px;
+background-color: #f4511e;
+border: none;
+color: #FFFFFF;
+display: flex;
+text-align: center;
+justify-content: center;
+align-items: center;
+font-size: 1.0rem;
+padding: 20px;
+width: 150px;
+transition: all 0.5s;
+cursor: pointer;
+margin: 5px;
+height: 40px;
+
+}
+
+.sell_button span {
+cursor: pointer;
+display: inline-block;
+position: relative;
+transition: 0.5s;
+}
+
+.sell_button span:after {
+content: '\00bb';
+position: absolute;
+opacity: 0;
+top: 0;
+right: -20px;
+transition: 0.5s;
+}
+
+.sell_button:hover span {
+padding-right: 25px;
+}
+
+.sell_button:hover span:after {
+opacity: 1;
+right: 0;
+}
+
+
+.img {
+display: block;
+margin: auto;
+border: 0;
+}
+
+
+.big {
+font-size: 2.0rem;
+line-height: 1.3;
+font-weight: 600;
+padding-top: 0rem;
+margin-bottom: 0rem;
+letter-spacing: 3px;
+
+}
+
+.small {
+margin-top: 45px;
+font-size: 0.9rem;
+font-weight: 400;
+line-height: 1.5;
+letter-spacing: 2px;
+}
+
+.image_1 {
+margin-top: 40px;
+margin-left: 50px;
+}
+
+
+.body_content_box_4 {
+display: flex;
+flex-direction: row;
+}
+
+.body_content_4 {
+height: 350px;
+width: 1024px;
+margin: auto;
+background-color: #E6F3E6;
+display: flex;
+flex-direction: row;
+}
+
+.ai_button {
+border-radius: 4px;
+background-color: green;
+border: none;
+color: #FFFFFF;
+display: flex;
+text-align: center;
+justify-content: center;
+align-items: center;
+font-size: 1.0rem;
+padding: 20px;
+width: 200px;
+transition: all 0.5s;
+cursor: pointer;
+margin: 5px;
+height: 40px;
+}
+
+.ai_button span {
+cursor: pointer;
+display: inline-block;
+position: relative;
+transition: 0.5s;
+}
+
+.ai_button span:after {
+content: '\00bb';
+position: absolute;
+opacity: 0;
+top: 0;
+right: -20px;
+transition: 0.5s;
+}
+
+.ai_button:hover span {
+padding-right: 25px;
+}
+
+.ai_button:hover span:after {
+opacity: 1;
+right: 0;
+}
+
+.image_2 {
+margin-top: 25px;
+margin-left: 10px;
+}
+
+
+.body_content_box_3 {
+display: flex;
+flex-direction: row;
+}
+
+.content_box_3_title {
+font-size: 1.4rem;
+font-weight: 600;
+margin-top: 50px;
+text-align: center;
+margin-left: 305px;
+}
+
+
+.body_content_box_2 {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+
+}
+
+
+.body_content_box_5 {
+display: flex;
+flex-direction: row;
+}
+
+.content_box_5_title {
+font-size: 1.4rem;
+font-weight: 600;
+margin-top: 100px;
+text-align: center;
+margin-left: 305px;
+}
+
+
+.body_content_box_6 {
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+margin-bottom: 100px;
+}
+
+
+
+.item_link {
+width: 200px;
+height: 400px;
+display: block;
+}
+
+.item_row {
+display: flex;
+flex-direction: row;
+margin-bottom: 50px;
+}
+
+.item_image {
+height: 200px;
+width: 100%;
+object-fit: cover;
+}
+
+.item_name {
+margin-top: 10px;
+font-weight: 400;
+font-size: 16px;
+}
+
+.item_cost {
+margin-top: 10px;
+font-weight: 700;
+}
+
+.item_place {
+font-weight: 400;
+font-size: smaller;
+margin-top: 10px;
+}
+
+.like_chating {
+display: flex;
+flex-direction: row;
+color: #868e96;
+margin-top: 10px;
+}
+
+.like {
+font-size: smaller;
+}
+
+.chat {
+font-size: smaller;
+
+}
+
+.more_item_wrap {
+display: flex;
+justify-content: center;
+flex-direction: column;
+text-align: center;
+}
+
+.more_item_btn1, .more_item_btn2 {
+border: none;
+background-color: white;
+font-weight: bold;
+text-decoration: underline;
+font-size: medium;
+margin-bottom: 30px;
+margin-left: 900px;
+}
+
+
+.footer {
+display: flex;
+flex-direction: column;
+background-color: #fbf7f2;
+margin: auto;
+}
+
+.footer_icons {
+display: flex;
+list-style: none;
+justify-content: end;
+margin: 0;
+}
+
+.footer_icons li {
+margin-top: 10px;
+margin-left: 30px;
+margin-right: 20px;
+}
+
+
+.footer_wrap {
+display: flex;
+justify-content: center;
+margin: auto;
+}
+
+.footer_title {
+border: none;
+background-color: #fbf7f2;
+font-weight: bold;
+text-decoration: underline;
+font-size: medium;
+margin-top: 100px;
+margin-bottom: 50px;
+
+}
+
+.keyword {
+display: flex;
+list-style: none;
+padding-left: 0;
+justify-content: center;
+}
+
+.keyword li {
+padding: 8px 12px;
+margin: 10px 30px;
+}
+
+
+
+.chatbot-toggler {
+position: fixed;
+bottom: 30px;
+right: 35px;
+outline: none;
+border: none;
+height: 50px;
+width: 50px;
+display: flex;
+cursor: pointer;
+align-items: center;
+justify-content: center;
+border-radius: 50%;
+background: #041562;
+transition: all 0.2s ease;
+}
+
+
+body.show-chatbot .chatbot-toggler {
+transform: rotate(90deg);
+}
+
+
+.chatbot-toggler span {
+color: #fff;
+position: absolute;
+}
+
+
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child {
+opacity: 0;
+}
+
+
+body.show-chatbot .chatbot-toggler span:last-child {
+opacity: 1;
+}
+
+
+.chatbot {
+position: fixed;
+right: 35px;
+bottom: 90px;
+width: 420px;
+background: #fff;
+border-radius: 15px;
+overflow: hidden;
+opacity: 0;
+pointer-events: none;
+transform: scale(0.5);
+transform-origin: bottom right;
+box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1),
+    0 32px 64px -48px rgba(0, 0, 0, 0.5);
+transition: all 0.1s ease;
+}
+
+
+body.show-chatbot .chatbot {
+opacity: 1;
+pointer-events: auto;
+transform: scale(1);
+}
+
+
+.chatbot header {
+padding: 16px 0;
+position: relative;
+text-align: center;
+color: #fff;
+background: #041562;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.chatbot header span {
+position: absolute;
+right: 15px;
+top: 50%;
+display: none;
+cursor: pointer;
+transform: translateY(-50%);
+}
+
+
+header h2 {
+font-size: 1.4rem;
+}
+
+
+.chatbot .chatbox {
+overflow-y: auto;
+height: 510px;
+padding: 30px 20px 100px;
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+width: 6px;
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+background: #fff;
+border-radius: 25px;
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+background: #ccc;
+border-radius: 25px;
+}
+
+.chatbox .chat {
+display: flex;
+list-style: none;
+}
+
+.chatbox .outgoing {
+margin: 20px 0;
+justify-content: flex-end;
+}
+
+.chatbox .incoming span {
+width: 32px;
+height: 32px;
+color: #fff;
+cursor: default;
+text-align: center;
+line-height: 32px;
+align-self: flex-end;
+background: #041562;
+border-radius: 4px;
+margin: 0 10px 7px 0;
+}
+
+.chatbox .chat p {
+white-space: pre-wrap;
+padding: 12px 16px;
+border-radius: 10px 10px 0 10px;
+max-width: 75%;
+color: #fff;
+font-size: 0.95rem;
+background: #041562;
+}
+
+.chatbox .incoming p {
+border-radius: 10px 10px 10px 0;
+}
+
+.chatbox .chat p.error {
+color: #721c24;
+background: #f8d7da;
+}
+
+.chatbox .incoming p {
+color: #000;
+background: #f2f2f2;
+}
+
+.chatbot .chat-input {
+display: flex;
+gap: 5px;
+position: absolute;
+bottom: 0;
+width: 100%;
+background: #fff;
+padding: 3px 20px;
+border-top: 1px solid #ddd;
+}
+
+.chat-input textarea {
+height: 55px;
+width: 100%;
+border: none;
+outline: none;
+resize: none;
+max-height: 180px;
+padding: 15px 15px 15px 0;
+font-size: 0.95rem;
+}
+
+.chat-input span {
+align-self: flex-end;
+color: #041562;
+cursor: pointer;
+height: 55px;
+display: flex;
+align-items: center;
+visibility: hidden;
+font-size: 1.35rem;
+}
+
+.chat-input textarea:valid~span {
+visibility: visible;
+}
+
+@media (max-width: 490px) {
+.chatbot-toggler {
+    right: 20px;
+    bottom: 20px;
+}
+
+.chatbot {
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 0;
+    width: 100%;
+}
+
+.chatbot .chatbox {
+    height: 90%;
+    padding: 25px 15px 100px;
+}
+
+.chatbot .chat-input {
+    padding: 5px 15px;
+}
+
+.chatbot header span {
+    display: block;
+}
+}
+
+/* Container 스타일 */
+.container {
+max-width: 600px;
+margin: 0 auto;
+padding: 20px;
+border: 1px solid #ddd;
+border-radius: 8px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input 및 Textarea 스타일 */
+.form-control {
+margin-bottom: 15px;
+border-radius: 4px;
+border: 1px solid #ced4da;
+}
+
+/* Button 스타일 */
+.btn-danger {
+background-color: #dc3545;
+border-color: #dc3545;
+color: #fff;
+border-radius: 4px;
+padding: 10px 20px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+background-color: #c82333;
+border-color: #bd2130;
+}
+
+/* 부모 요소의 스타일 설정 */
+.user-info {
+display: flex; /* Flexbox 사용 */
+align-items: center; /* 수직 가운데 정렬 */
+font-weight: bold;
+}
+
+.user-image {
+max-width: 27px;
+height: auto; /* 가로 세로 비율 유지 */
+margin-left: 5px;
+}
+
+.item_box_2 {
+    display: flex;
+    flex-wrap: wrap; /* 넘치는 경우 다음 줄로 이동 */
+    justify-content: flex-start; /* 각 행을 왼쪽으로 정렬 */
+}
+
+.item {
+    box-sizing: border-box; /* 요소의 크기 계산 시 border와 padding을 포함 */
+    display: flex; /* 아이템을 가로로 정렬하기 위해 필요한 속성 */
+    justify-content: center; /* 가로 방향으로 가운데 정렬 */
+}
+
+
+/* 마지막 열의 오른쪽 마진을 없애기 위한 조건 */
+.item:nth-child(4n) {
+    margin-right: 0;
+}
+
+/* 작은 화면에서는 한 줄에 2개의 열로 변경 */
+@media (max-width: 768px) {
+    .item {
+        flex: 0 0 calc(50% - 10px); /* 한 줄에 2개의 열로 설정 */
+    }
+}
+
+.item_box {
+display: flex;
+flex-direction: column;
+}
+
+.item_box_1 {
+display: flex;
+flex-direction: row;
+}
+
+.item_box_2, .item_box_1 {
+    display: grid;
+    grid-template-columns: repeat(4, 120px); /* 각 열의 너비를 80px로 고정 */
+    grid-gap: 10px; /* 열 간의 간격을 설정 */
+grid-column-gap: 150px; /* 그리드 아이템들 사이의 가로 간격을 15px로 설정 */
+margin-right: 100px;
+}
+
+.keyword_wrap{
+display: flex;
+justify-content: center;
+flex-wrap: wrap;
+}
+.popularSearch_term{
+display: flex;
+margin: 30px;
+text-align: center;
+}
+
+/* 추가된 CSS 코드 */
+.suggestions {
+margin-top: 10px;
+}
+
+.suggestions p {
+    font-weight: bold;
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: 1.5em; 
+}
+
+.suggestions ul {
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+.suggestions .suggestion {
+background: #e0e0e0;
+color: #000;
+padding: 10px;
+border-radius: 5px;
+margin: 5px 0;
+cursor: pointer;
+transition: background 0.3s ease;
+}
+
+.suggestions .suggestion:hover {
+background: #bdbdbd;
+}
+
+.chatbot-toggler {
+position: fixed;
+bottom: 30px;
+right: 35px;
+outline: none;
+border: none;
+height: 50px;
+width: 50px;
+display: flex;
+cursor: pointer;
+align-items: center;
+justify-content: center;
+border-radius: 50%;
+background: #041562;
+transition: all 0.2s ease;
+}
+
+body.show-chatbot .chatbot-toggler {
+transform: rotate(90deg);
+}
+
+.chatbot-toggler span {
+color: #fff;
+position: absolute;
+}
+
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child {
+opacity: 0;
+}
+
+body.show-chatbot .chatbot-toggler span:last-child {
+opacity: 1;
+}
+
+.chatbot {
+position: fixed;
+right: 35px;
+bottom: 90px;
+width: 420px;
+background: #fff;
+border-radius: 15px;
+overflow: hidden;
+opacity: 0;
+pointer-events: none;
+transform: scale(0.5);
+transform-origin: bottom right;
+box-shadow: 0 0 128px 0 rgba(0, 0, 0, 0.1),
+    0 32px 64px -48px rgba(0, 0, 0, 0.5);
+transition: all 0.1s ease;
+}
+
+body.show-chatbot .chatbot {
+opacity: 1;
+pointer-events: auto;
+transform: scale(1);
+}
+
+.chatbot header {
+padding: 16px 0;
+position: relative;
+text-align: center;
+color: #fff;
+background: #041562;
+box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.chatbot header span {
+position: absolute;
+right: 15px;
+top: 50%;
+display: none;
+cursor: pointer;
+transform: translateY(-50%);
+}
+
+header h2 {
+font-size: 1.4rem;
+}
+
+.chatbot .chatbox {
+overflow-y: auto;
+height: 510px;
+padding: 30px 20px 100px;
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+width: 6px;
+}
+
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+background: #fff;
+border-radius: 25px;
+}
+
+chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+background: #ccc;
+border-radius: 25px;
+}
+
+.chatbox .chat {
+display: flex;
+list-style: none;
+}
+
+.chatbox .outgoing {
+margin: 20px 0;
+justify-content: flex-end;
+}
+
+.chatbox .incoming span {
+width: 32px;
+height: 32px;
+color: #fff;
+cursor: default;
+text-align: center;
+line-height: 32px;
+align-self: flex-end;
+background: #041562;
+border-radius: 4px;
+margin: 0 10px 7px 0;
+}
+
+.chatbox .chat p {
+white-space: pre-wrap;
+padding: 12px 16px;
+border-radius: 10px 10px 0 10px;
+max-width: 75%;
+color: #fff;
+font-size: 0.95rem;
+background: #041562;
+}
+
+.chatbox .incoming p {
+border-radius: 10px 10px 10px 0;
+}
+
+.chatbox .chat p.error {
+color: #721c24;
+background: #f8d7da;
+}
+
+.chatbox .incoming p {
+color: #000;
+background: #f2f2f2;
+}
+
+.chatbot .chat-input {
+display: flex;
+gap: 5px;
+position: absolute;
+bottom: 0;
+width: 100%;
+background: #fff;
+padding: 3px 20px;
+border-top: 1px solid #ddd;
+}
+
+.chat-input textarea {
+height: 55px;
+width: 100%;
+border: none;
+outline: none;
+resize: none;
+max-height: 100px;
+padding: 15px 15px 15px 0;
+font-size: 0.95rem;
+}
+
+.chat-input span {
+align-self: flex-end;
+color: #041562;
+cursor: pointer;
+height: 55px;
+display: flex;
+align-items: center;
+visibility: hidden;
+font-size: 1.35rem;
+}
+
+.chat-input textarea:valid~span {
+visibility: visible;
+}
+
+@media (max-width: 490px) {
+.chatbot-toggler {
+    right: 20px;
+    bottom: 20px;
+}
+
+.chatbot {
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 0;
+    width: 100%;
+}
+
+.chatbot .chatbox {
+    height: 90%;
+    padding: 25px 15px 100px;
+}
+
+.chatbot .chat-input {
+    padding: 5px 15px;
+}
+
+.chatbot header span {
+    display: block;
+}
+}
+
+/* Container 스타일 */
+.container {
+max-width: 600px;
+margin: 0 auto;
+padding: 20px;
+border: 1px solid #ddd;
+border-radius: 8px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input 및 Textarea 스타일 */
+.form-control {
+margin-bottom: 15px;
+border-radius: 4px;
+border: 1px solid #ced4da;
+}
+
+/* Button 스타일 */
+.btn-danger {
+background-color: #dc3545;
+border-color: #dc3545;
+color: #fff;
+border-radius: 4px;
+padding: 10px 20px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+.btn-danger:hover {
+background-color: #c82333;
+border-color: #bd2130;
+}
+
+/* 부모 요소의 스타일 설정 */
+.user-info {
+display: flex; /* Flexbox 사용 */
+align-items: center; /* 수직 가운데 정렬 */
+font-weight: bold;
+}
+
+.user-image {
+max-width: 27px;
+height: auto; /* 가로 세로 비율 유지 */
+margin-left: 5px;
+}
+
+.disabled {
+pointer-events: none;
+opacity: 0.6;
+}

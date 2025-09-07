@@ -1,0 +1,46 @@
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.s_body_Term {
+    width: 1024px;
+    margin: auto;
+    margin-top: 50px;
+    margin-bottom: 30px;
+    font-size: 20px;
+}
+
+.s_body_content_box {
+    display: flex;
+    flex-direction: row; 
+    flex-wrap: wrap; 
+    /*justify-content: center;*/ 
+    width: 1024px;
+    margin: auto;
+
+}
+
+.s_result_products {
+    margin-left: 50px;
+    display: inline-block;
+}
+
+.p_name {
+    margin-top: 10px;
+    font-weight: 400;
+    font-size: 16px;
+}
+
+.p_image {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.item_link {
+    width: 200px;
+    height: 400px;
+    display: block;
+}

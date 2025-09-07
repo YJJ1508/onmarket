@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/e1a2c43e41.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="/images/5572662.png" type="/images/5572662.png">
+    <title>ON-MARKET</title>
+    <link rel="stylesheet" href="../css/detail.css">
+</head>
+
+<body>
+    <!-- Firebase and jQuery scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Firebase configuration -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+    <!-- Header -->
+    <div class="header" style="margin-right: 15px;">
+        <div class="header_wrap">
+            <div class="header_content">
+                <img src="/images/5572662.png" style="width: 80px; margin-top: 8px; padding-right: 10px;">
+                <h1 style="margin-top: 19px; font-size: 27px; color: #f4511e; font-weight: bold;"><a href="/"
+                        style="color: #f4511e; text-decoration: none;">ON</a></h1>
+            </div>
+
+            <div class="header_content">
+                <a href="#">
+                    <button type="submit" class="basket_button"><i class="fa-solid fa-cart-shopping"></i></button>
+                </a>
+
+                <a href="/myprofile.html">
+                    <button type="submit" class="login_button"><i class="fa-solid fa-user"></i></button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Container -->
+    <div class="detail_container">
+        <div class="detail_images">
+            <img id="detail_image1" class="detail_image" src="" alt="">
+            <img id="detail_image2" class="detail_image" src="" alt="">
+            <img id="detail_image3" class="detail_image" src="" alt="">
+        </div>
+
+        <!-- Slide Buttons -->
+        <button class="prev" onclick="prevSlide()">&#10094;</button>
+        <button class="next" onclick="nextSlide()">&#10095;</button>
+
+        <!-- Product Details -->
+        <div class="product_detail">
+            <h1 id="detail_seller" class="detail_info"></h1>
+            <h1 id="detail_title" class="detail_info"></h1>
+            <p id="detail_price" class="detail_price"></p>
+            <p id="detail_address" class="detail_info"></p>
+            <p id="detail_content" class="detail_info"></p>
+            <div class="detail_view" style="display: flex; margin-top: 40px;">
+                <p id="detail_date" class="detail_info" style=" padding-right: 20px;"></p>
+                <p id="detail_views" class="detail_info" style="padding-right: 20px;"></p>
+                <p id="detail_chats" class="detail_info" style="padding-right: 20px;"></p>
+                <p id="detail_interest" class="detail_info"></p>
+                <div class="btn-container">
+                    <div class="heart-btn">
+                        <div class="content">
+                            <span class="heart"></span>
+                        </div>
+                    </div>
+                    <button class="chatButton" id="chat">채팅하기</button>
+                </div>
+
+            </div>
+            <button class="editButton" id="edit"><i class="fas fa-edit" style="color: #42b549;"></i> 수정</button>
+            <button class="deleteButton" id="delete"><i class="fas fa-trash-alt" style="color: #ff6f61;"></i>삭제</button>
+
+            <script>
+                $(document).ready(function () {
+                    $('.content').click(function () {
+                        $('.content').toggleClass("heart-active")
+                        $('.text').toggleClass("heart-active")
+                        $('.numb').toggleClass("heart-active")
+                        $('.heart').toggleClass("heart-active")
+                    });
+                });
+            </script>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        let currentSlide = 0;
+        const slideWidth = 600;
+
+        $(document).ready(function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            async function checkPayment() {
+                //console.log("checkPayment");
+                await db.collection("order").where("상품_id", "==", productId).get().then((doc) => {
+                    if (!doc.empty) {
+                        alert("결제 완료된 상품입니다.");
+                        window.location.href = "/"
+                    }
+                })
+            }
+            checkPayment()
+
+            db.collection('product').doc(productId).get().then((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    let formattedPrice;
+
+                    if (data.무료나눔) {
+                        formattedPrice = "무료 나눔";
+                    } else {
+                        formattedPrice = Number(data.가격).toLocaleString() + '원';
+                    }
+
+                    let date = new Date(data.날짜.seconds * 1000).toLocaleDateString();
+
+                    // 상품 데이터에서 판매자 UID 가져오기
+                    const sellerUid = data.uid;
+
+                    // Firestore에서 해당 UID를 가진 사용자 데이터 가져오기
+                    db.collection('user-id').doc(sellerUid).get().then((userDoc) => {
+                        if (userDoc.exists) {
+                            const sellerData = userDoc.data();
+                            const sellerName = sellerData.name;
+
+                            // 상품 상세 정보를 HTML에 적용
+                            $('#detail_title').text(data.제목);
+                            $('#detail_image1').attr('src', data.이미지1);
+                            $('#detail_image2').attr('src', data.이미지2);
+                            $('#detail_image3').attr('src', data.이미지3);
+                            $('#detail_price').text(formattedPrice);
+                            $('#detail_address').text(data.주소);
+                            $('#detail_content').html(wrapText(data.내용, 30));
+                            $('#detail_date').text('등록 날짜: ' + date);
+                            $('#detail_views').text('조회수: ' + data.조회수);
+                            $('#detail_chats').text('채팅수: ' + data.채팅데이터);
+                            $('#detail_interest').text('관심: ' + data.관심);
+                            $('#detail_seller').text(sellerName);
+
+                            $('#detail_date').css({
+                                'font-size': '14px',
+                                'color': 'gray' // 원하는 색상으로 변경하세요.
+                            });
+                            $('#detail_views').css({
+                                'font-size': '14px',
+                                'color': 'gray' // 원하는 색상으로 변경하세요.
+                            });
+                            $('#detail_chats').css({
+                                'font-size': '14px',
+                                'color': 'gray' // 원하는 색상으로 변경하세요.
+                            });
+                            $('#detail_interest').css({
+                                'font-size': '14px',
+                                'color': 'gray' // 원하는 색상으로 변경하세요.
+                            });
+
+                            // edit 버튼과 delete 버튼의 표시 여부 결정
+                            const user = localStorage.getItem('user');
+                            if (user) {
+                                const currentUserUid = JSON.parse(user).uid;
+                                if (currentUserUid === sellerUid) {
+                                    $('.editButton').show();
+                                    $('.deleteButton').show();
+                                } else {
+                                    $('.editButton').hide();
+                                    $('.deleteButton').hide();
+                                }
+                            } else {
+                                // 로그인 상태가 아닐 경우 버튼 숨기기
+                                $('.editButton').hide();
+                                $('.deleteButton').hide();
+                            }
+
+                        } else {
+                            console.log("사용자 정보를 찾을 수 없습니다.");
+                        }
+                    }).catch((error) => {
+                        console.error("판매자 정보를 가져오는 도중 오류가 발생했습니다:", error);
+                    });
+                } else {
+                    console.log("상품 정보가 없습니다.");
+                }
+            }).catch((error) => {
+                console.log("Error getting document:", error);
+            });
+        });
+
+        function showSlide(n) {
+            const images = document.querySelectorAll('.detail_image');
+            if (n >= images.length) {
+                currentSlide = 0;
+            }
+            if (n < 0) {
+                currentSlide = images.length - 1;
+            }
+
+            images.forEach(image => image.style.transform = `translateX(-${currentSlide * slideWidth}px)`);
+        }
+
+        function nextSlide() {
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide--;
+            showSlide(currentSlide);
+        }
+
+        // 채팅 데이터 값을 증가시키는 함수
+        function increaseChatData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            const productRef = db.collection('product').doc(productId);
+
+            // 해당 문서의 채팅데이터 필드 값을 증가시키거나 생성
+            productRef.get().then((docSnapshot) => {
+                if (docSnapshot.exists) {
+                    productRef.update({
+                        채팅데이터: firebase.firestore.FieldValue.increment(1)
+                    }).then(() => {
+                        console.log("채팅 데이터 값이 증가되었습니다.");
+                    }).catch((error) => {
+                        console.log("채팅 데이터 값 증가에 실패하였습니다.", error);
+                    });
+                } else {
+                    productRef.set({
+                        채팅데이터: 0
+                    }).then(() => {
+                        console.log("채팅 데이터 필드가 새로 생성되었습니다.");
+                    }).catch((error) => {
+                        console.log("채팅 데이터 필드 생성에 실패하였습니다.", error);
+                    });
+                }
+            }).catch((error) => {
+                console.log("Error checking document:", error);
+            });
+        }
+
+        // chatButton 클릭 이벤트에 채팅 데이터 증가 함수 연결
+        $(document).on('click', '.chatButton', function () {
+            increaseChatData();
+        });
+
+
+        const storage = firebase.storage();
+
+        // localStorage에 현재 로그인 유저 정보 저장
+        /*
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                localStorage.setItem('user', JSON.stringify(user))
+            }
+        })*/
+
+
+
+        var 판매자uid, 상품명, 판매자_이름, 구매자_이름, 이미지1;
+
+        // 상세페이지의 채팅 버튼 클릭 이벤트 정의
+        $('#chat').click(function () {
+
+            // 로그인 상태 확인
+            firebase.auth().onAuthStateChanged(function (user) {
+                if (user) { // 로그인이 되어 있는 경우
+                    var 내uid = JSON.parse(localStorage.getItem('user')).uid
+
+                    var 채팅데이터 = {
+                        who: [내uid, 판매자uid],
+                        product: 상품명,
+                        판매자_이름: 판매자_이름,
+                        구매자_이름: 구매자_이름,
+                        이미지1: 이미지1,
+                        date: new Date()
+                    }
+
+                    // 판매자의 UID와 내 UID가 동일한 경우
+                    if (내uid === 판매자uid) {
+                        // 채팅방 생성 없이 바로 chat.html로 이동
+                        window.location.href = "/chat.html";
+                        return;
+                    }
+
+                    // 동일한 who 배열을 가진 채팅방이 있는지 확인
+                    db.collection('chat').where('who', '==', 채팅데이터.who).get().then(function (querySnapshot) {
+                        // 동일한 who 배열을 가진 채팅방이 없는 경우
+                        if (querySnapshot.empty) {
+                            // 새로운 채팅방 생성
+                            db.collection('chat').add(채팅데이터).then(function (docRef) {
+                                window.location.href = "/chat.html?chatId=" + docRef.id;
+                            })
+                                .catch(function (error) {
+                                    console.error("채팅방을 생성하는 중 오류 발생: ", error);
+                                });
+                        } else {
+                            // 동일한 who 배열을 가진 채팅방이 있는 경우
+                            console.log("동일한 who 배열을 가진 채팅방이 이미 존재합니다.");
+
+                            // 동일한 who 배열을 가진 채팅방 중에서 동일한 상품명을 가진 채팅방이 있는지 확인
+                            var 동일한상품채팅방 = querySnapshot.docs.find(function (doc) {
+                                return doc.data().product === 채팅데이터.product;
+                            });
+                            if (동일한상품채팅방) {
+                                // 동일한 상품명을 가진 채팅방으로 이동
+                                window.location.href = "/chat.html?chatId=" + 동일한상품채팅방.id;
+                            } else {
+                                // 동일한 상품명을 가진 채팅방이 없는 경우, 새로운 채팅방 생성
+                                db.collection('chat').add(채팅데이터).then(function (docRef) {
+                                    window.location.href = "/chat.html?chatId=" + docRef.id;
+                                })
+                                    .catch(function (error) {
+                                        console.error("채팅방을 생성하는 중 오류 발생: ", error);
+                                    });
+                            }
+                        }
+                    })
+                        .catch(function (error) {
+                            console.error("채팅방 정보를 확인하는 중 오류 발생: ", error);
+                        });
+                } else {
+                    // 로그인되지 않은 상태
+                    alert("로그인 후 이용해주세요.");
+                    window.location.href = "/login.html";
+                }
+            });
+        });
+
+        var 쿼리스트링 = new URLSearchParams(window.location.search);
+
+
+        db.collection('product').doc(쿼리스트링.get('id')).get().then((result) => {
+            판매자uid = result.data().uid;
+            상품명 = result.data().제목;
+            판매자_이름 = result.data().판매자_이름;
+            이미지1 = result.data().이미지1;
+        })
+
+        db.collection('user-id').doc(JSON.parse(localStorage.getItem('user')).uid).get().then((result) => {
+            구매자_이름 = result.data().name;
+        })
+
+
+        $('#edit').click(function () {
+            window.location.href = '/edit.html?id=' + 쿼리스트링.get('id')
+        })
+
+        $('#delete').click(function () {
+            if (confirm("이 상품을 삭제하시겠습니까?")) {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+
+                db.collection('product').doc(productId).delete()
+                    .then(() => {
+                        console.log("상품이 성공적으로 삭제되었습니다.");
+                        window.location.href = "/index.html";
+                    })
+                    .catch((error) => {
+                        console.error("상품 삭제 중 오류가 발생했습니다.", error);
+                    });
+            }
+        })
+
+        firebase.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                // 로그인된 사용자의 UID
+                var currentUserUid = user.uid;
+
+                // 게시물의 판매자 UID
+                var sellerUid;
+
+                // 현재 사용자가 작성한 게시물인지 확인하여 채팅 버튼 표시 여부 결정
+                db.collection('product').doc(쿼리스트링.get('id')).get().then((result) => {
+                    sellerUid = result.data().uid;
+
+                    if (currentUserUid === sellerUid) {
+                        // 현재 사용자가 판매자인 경우 채팅 버튼을 숨깁니다.
+                        $('#chat').hide();
+                    } else {
+                        // 현재 사용자가 판매자가 아닌 경우 채팅 버튼을 보여줍니다.
+                        $('#chat').show();
+                    }
+                }).catch((error) => {
+                    console.error("게시물 정보를 가져오는 도중 오류가 발생했습니다.", error);
+                });
+            } else {
+                // 로그인되지 않은 경우
+                $('#chat').hide(); // 채팅 버튼을 숨깁니다.
+            }
+        });
+
+        function wrapText(text, maxChars) {
+            if (text.length > maxChars) {
+                return text.replace(/(.{1,45})/g, '$1<br>');
+            }
+            return text;
+        }
+
+
+        const userRef = db.collection('user-id');
+        const productRef = db.collection('product');
+
+        $('.heart-btn').click(function () {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const currentUserUid = user.uid;
+                const productId = 쿼리스트링.get('id');
+
+                userRef.doc(currentUserUid).get().then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const updatedInterestedProducts = userData.관심상품 || [];
+                        const index = updatedInterestedProducts.indexOf(productId);
+                        if (index === -1) {
+                            updatedInterestedProducts.push(productId);
+                            // 관심 상품 추가 시 '관심' 필드 생성 및 증가
+                            userRef.doc(currentUserUid).update({
+                                관심상품: updatedInterestedProducts
+                            }).then(() => {
+                                console.log("관심 상품 추가");
+                                $('.heart').addClass('heart-active');
+                                // 해당 상품의 '관심' 필드 생성 및 증가
+                                productRef.doc(productId).update({
+                                    관심: firebase.firestore.FieldValue.increment(1)
+                                }).then(() => {
+                                    console.log("상품의 '관심' 필드 증가");
+                                }).catch((error) => {
+                                    console.error("상품의 '관심' 필드를 증가하는 도중 오류가 발생했습니다:", error);
+                                });
+                            }).catch((error) => {
+                                console.error("관심 상품을 추가하는 도중 오류가 발생했습니다:", error);
+                            });
+                        } else {
+                            updatedInterestedProducts.splice(index, 1);
+                            // 관심 상품 제거 시 '관심' 필드 감소
+                            userRef.doc(currentUserUid).update({
+                                관심상품: updatedInterestedProducts
+                            }).then(() => {
+                                console.log("관심 상품 제거");
+                                $('.heart').removeClass('heart-active');
+                                // 해당 상품의 '관심' 필드 감소
+                                productRef.doc(productId).update({
+                                    관심: firebase.firestore.FieldValue.increment(-1)
+                                }).then(() => {
+                                    console.log("상품의 '관심' 필드 감소");
+                                }).catch((error) => {
+                                    console.error("상품의 '관심' 필드를 감소하는 도중 오류가 발생했습니다:", error);
+                                });
+                            }).catch((error) => {
+                                console.error("관심 상품을 제거하는 도중 오류가 발생했습니다:", error);
+                            });
+                        }
+                    } else {
+                        console.log("사용자 정보를 찾을 수 없습니다.");
+                    }
+                }).catch((error) => {
+                    console.error("사용자 정보를 가져오는 도중 오류가 발생했습니다:", error);
+                });
+            } else {
+                console.log("사용자가 로그인되어 있지 않습니다.");
+            }
+        });
+
+        // 사용자가 관심을 표시한 경우 하트 아이콘 모양 변경 및 관심 텍스트 업데이트
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                const currentUserUid = user.uid;
+                // 'user-id' 컬렉션에서 현재 사용자의 문서 가져오기
+                userRef.doc(currentUserUid).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        // 클릭된 버튼이 속한 상품의 UID 가져오기
+                        const productId = 쿼리스트링.get('id');
+                        // 관심 필드가 true이고 관심상품 목록에 클릭된 상품이 있는 경우
+                        if (userData.관심상품 && userData.관심상품.includes(productId)) {
+                            $('.heart').addClass('heart-active');
+                        } else {
+                            $('.heart').removeClass('heart-active');
+                        }
+                    } else {
+                        console.log("사용자 정보를 찾을 수 없습니다.");
+                    }
+                }, (error) => {
+                    console.error("사용자 정보를 가져오는 도중 오류가 발생했습니다:", error);
+                });
+
+                // 'product' 컬렉션에서 현재 상품의 문서 가져오기
+                const productId = 쿼리스트링.get('id');
+                productRef.doc(productId).onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const productData = doc.data();
+                        // 관심 텍스트 업데이트
+                        $('#detail_interest').text('관심: ' + productData.관심);
+                    } else {
+                        console.log("상품 정보를 찾을 수 없습니다.");
+                    }
+                }, (error) => {
+                    console.error("상품 정보를 가져오는 도중 오류가 발생했습니다:", error);
+                });
+            }
+        });
+
+    </script>
+</body>
+
+</html>

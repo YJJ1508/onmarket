@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:600&display=swap');
+
+.heart-btn {
+    display: inline-block;
+    /* 변경 */
+    margin-right: 10px;
+}
+
+.btn-container {
+    position: absolute;
+    margin-left: 480px;
+}
+
+.chatButton {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    background-color: #f4511e;
+    color: #FFFFFF;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.heart-btn,
+.chatButton {
+    margin-right: 20px;
+    /* 요소들 사이의 간격을 조정합니다. */
+}
+
+
+.content.heart-active {
+    border-color: #f9b9c4;
+    background: #fbd0d8;
+}
+
+.heart {
+    position: absolute;
+    background: url("/images/img.png") no-repeat;
+    background-position: left;
+    background-size: 2900%;
+    height: 90px;
+    width: 90px;
+    transform: translateX(-70px) translateY(-58%);
+
+}
+
+.heart.heart-active {
+    animation: animate .8s steps(28) 1;
+    background-position: right;
+}
+
+@keyframes animate {
+    0% {
+        background-position: left;
+    }
+
+    100% {
+        background-position: right;
+    }
+}
+
+#detail_seller {
+    border-bottom: solid #ccc;
+    padding-bottom: 20px;
+    width: 600px;
+}
+
+.detail_container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    position: relative;
+    /* Make it relative for absolute positioning of buttons */
+}
+
+.detail_images {
+    position: relative;
+    overflow: hidden;
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    top: 20px;
+    margin-bottom: 50px;
+}
+
+.detail_images img {
+    flex-shrink: 0;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.detail_price {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.detail_info {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.prev,
+.next {
+    cursor: pointer;
+    position: absolute;
+    top: 35%;
+    /* Adjusted top position */
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: white;
+    color: black;
+    border: none;
+    outline: none;
+    z-index: 1;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.next {
+    right: 20px;
+}
+
+.prev {
+    left: 20px;
+}
+
+#detail_title {
+    margin-top: 20px;
+    font-size: 24px;
+}
+
+.product_detail {
+    position: relative;
+    margin-left: 75px;
+}
+
+.editButton,
+.deleteButton {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    background-color: transparent;
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.editButton:hover,
+.deleteButton:hover {
+    background-color: #f1f1f1;
+}
+
+.editButton i,
+.deleteButton i {
+    font-size: 18px;
+}

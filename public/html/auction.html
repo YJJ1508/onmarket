@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/e1a2c43e41.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous">
+        </script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+    </script>
+    <title>ON-MARKET</title>
+    <link rel="stylesheet" href="../css/auction.css">
+</head>
+
+<body>
+    <div class="header" style="margin-right: 15px;">
+        <div class="header_wrap">
+            <div class="header_content">
+                <img src="/images/5572662.png" style="width: 80px; margin-top: 8px; padding-right: 10px;">
+                <h1 style="margin-top: 19px; font-size: 27px; color: #f4511e; font-weight: bold;"><a href="/"
+                        class="main-logo" style="color: #f4511e; text-decoration: none;">ON</a></h1>
+            </div>
+            <div class="header_content">
+                <div id="userInfo" class="user-info"></div>
+                <a href="/myprofile.html">
+                    <button type="submit" id="basketLink" class="basket_button"><i
+                            class="fa-solid fa-cart-shopping"></i></button>
+                </a>
+                <a href="/myprofile.html">
+                    <button type="submit" id="profileLink" class="login_button"><i
+                            class="fa-solid fa-user"></i></button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="body">
+        <div class="post_product" id="postProduct">
+            <div class="body_content_1">
+                <div class="body_wrap">
+                    <h2 class="big"><br>반갑습니다!</h2>
+                    <p class="small">국내 중고사이트 어디에도 없는 온라인 경매!<br><br>경매할 물건을 등록해보세요.</p>
+                    <br>
+                    <a href="/upload_auction.html">
+                        <button type="submit" class="sell_button"><span>판매하기</span></button>
+                    </a>
+                </div>
+                <div class="body_wrap2">
+                    <img class="image2" src="/images/383949.png" width="250" height="280">
+                    <img class="image1" src="/images/bid3.png" width="350" height="350">
+                </div>
+            </div>
+        </div>
+        <h3 style="width: 1024px; margin: auto; margin-top: 100px;">경매중인 상품</h3>
+        <div class="auction_product" id="auctionProduct">
+            <!--상품 나열-->
+        </div>
+        <h3 style="width: 1024px; margin: auto; ">경매 종료 상품</h3>
+        <div class="auction_end_product">
+            <!--종료 상품 나열-->
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(async function () {
+            $('#basketLink').click(function (event) {
+                event.preventDefault();
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (!user) {
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html"; // 로그인 페이지로 리다이렉션
+                    } else {
+                        window.location.href = "/myprofile.html"; // 로그인이 되어 있다면, myprofile.html로 이동
+                    }
+                });
+            });
+            $('#profileLink').click(function (event) {
+                event.preventDefault();
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (!user) {
+                        alert("로그인 후 이용해주세요.");
+                        window.location.href = "/login.html"; // 로그인 페이지로 리다이렉션
+                    } else {
+                        window.location.href = "/myprofile.html"; // 로그인이 되어 있다면, myprofile.html로 이동
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        const db = firebase.firestore()
+
+        $(document).ready(async function () {
+            displayDoc();    // 상품 나열 함수 호출
+            displayEndDoc();    //종료 상품 나열
+            updateAuctionStatus();    // 경매상태[경매중, 경매종료 확인] 함수 호출
+
+            $('a').not('.main-logo').click(async function (event) {
+                const user = firebase.auth().currentUser; //로그인 확인
+                if (!user) {
+                    event.preventDefault();
+                    alert("로그인 후 이용해주세요.");
+                    window.location.href = "/login.html";
+                }
+            });
+
+            $(document).on('click', '.item_box', async function (event) {
+                event.preventDefault();
+                const productId = $(this).data('id');
+                await updateViewCount(productId);    // 조회수 호출 함수d
+                window.location.href = $(this).attr('href');
+            });
+
+        })
+
+
+
+
+        // 경매 상품 나열 함수
+        async function displayDoc() {
+            const auctionDB = await db.collection("auction");
+            auctionDB.onSnapshot(async (snapshot) => {
+                let 템플릿 = ''
+                snapshot.forEach(doc => {
+                    if (doc.data().경매상태 == "종료") return;
+
+                    템플릿 += `
+                        <div class="item">
+                            <a href="/detail_auction.html?id=${doc.id}" class="item_box" data-id="${doc.id}">
+                                <img class="item_image" src="${doc.data().이미지1}" style="border-radius: 12px;">
+                                <h2 class="item_name">${doc.data().상품명}</h2>
+                                <p class="item_cost">입찰가: ${doc.data().현재입찰가}원</p>
+                                <p class="item_address">${doc.data().주소}</p>
+                                <div class="item_count">
+                                    <p class="item_view">조회수: ${doc.data().조회수}</p>
+                                    <p class="item_viewBid">입찰수: ${doc.data().입찰수}</p>
+                                </div>
+                            </a>
+                        </div>`;
+                });
+                $('#auctionProduct').empty();
+                $('#auctionProduct').append(템플릿);
+            });
+
+        }
+
+        async function displayEndDoc() {
+            const auctionDB = await db.collection("auction");
+            auctionDB.onSnapshot(async (snapshot) => {
+                let 템플릿 = ''
+                snapshot.forEach(doc => {
+                    if (doc.data().경매상태 === "종료") {
+                        템플릿 += `
+                        <div class="item">
+                            <a href="/detail_auction.html?id=${doc.id}" class="item_box" data-id="${doc.id}">
+                                <img class="item_image" src="${doc.data().이미지1}" style="border-radius: 12px;">
+                                <h2 class="item_name">${doc.data().상품명}</h2>
+                                <p class="item_cost">낙찰가: ${doc.data().낙찰가}원</p>
+                                <p class="item_address">${doc.data().주소}</p>
+                                <div class="item_count">
+                                    <p class="item_view">조회수: ${doc.data().조회수}</p>
+                                    <p class="item_viewBid">입찰수: ${doc.data().입찰수}</p>
+                                </div>
+                            </a>
+                        </div>`;
+                    }
+                });
+                $('.auction_end_product').empty();
+                $('.auction_end_product').append(템플릿);
+            });
+
+        }
+
+
+
+        async function updateViewCount(productId) {
+            const auctionDB = await db.collection("auction").doc(productId);
+
+            await db.runTransaction(async (transaction) => {
+                const auctionDoc = await transaction.get(auctionDB);
+                if (!auctionDoc.exists) {
+                    throw "Document does not exist!";
+                }
+                const newViewCount = (auctionDoc.data().조회수 || 0) + 1;
+                transaction.update(auctionDB, { 조회수: newViewCount });
+            });
+        }
+
+
+        async function updateAuctionStatus() {
+            async function innerfunction() {
+                try {
+                    const auctionDB = await db.collection("auction").get();
+                    //1. 상품의 종료시간을 가져와서 종료될때
+                    // 2. 경매낙찰 로직을 구현한다.
+                    auctionDB.forEach(async (doc) => {
+                        const auctionData = doc.data();
+                        const endDate = auctionData.경매종료시간; // 2000-12-23
+                        const endTime = new Date(endDate + "T23:59:59");
+                        const now = new Date();
+                        const timeLeft = endTime.getTime() - now.getTime(); //남은시간
+
+                        // 경매 종료 시
+                        if (timeLeft <= 0) {
+                            // 낙찰 로직 수행
+                            try {
+                                // curr_bidders 컬렉션에서 가장 최근의 문서 가져오기
+                                var currBidderDB = await db.collection("auction").doc(doc.id).collection("curr_bidders")
+                                    .orderBy("입찰시간", "desc").limit(1).get();
+                                if (currBidderDB.empty) {
+                                    console.log("입찰자가 없습니다.");
+                                    return;
+                                }
+                                var sucessfulBidDoc = currBidderDB.docs[0];
+                                var sucessfulBidPrice = sucessfulBidDoc.data().현재입찰가;
+                                var sucessfulBidId = sucessfulBidDoc.data().현재입찰자id;
+                                var sucessfulBidEmail = sucessfulBidDoc.data().현재입찰자email;
+
+                                // 경매 종료 로직 처리 (예: 상품을 최고 입찰자에게 할당, 알림 전송 등)
+                                //console.log("낙찰자:", sucessfulBidEmail, "최종 가격:", sucessfulBidPrice);
+
+                                await db.collection("auction").doc(doc.id).update({
+                                    경매상태: "종료",
+                                    낙찰자id: sucessfulBidId,
+                                    낙찰자email: sucessfulBidEmail,
+                                    낙찰가: sucessfulBidPrice,
+                                });
+
+                                // 필요한 경우 낙찰자에게 알림을 전송하는 로직을 추가할 수 있습니다.
+                            } catch (error) {
+                                console.error("경매 종료 처리 중 오류 발생:", error);
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error("경매 상태 갱신 중 오류 발생:", error);
+                }
+            }
+            setInterval(innerfunction, 1000)
+        }
+
+
+
+
+
+
+    </script>
+
+
+
+</body>
+
+</html>

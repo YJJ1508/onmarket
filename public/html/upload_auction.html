@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/e1a2c43e41.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>ON-MARKET</title>
+    <link rel="stylesheet" href="../css/upload_auction.css">
+</head>
+
+<body>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "FIREBASE_API_KEY",
+            authDomain: "FIREBASE_AUTH_DOMAIN",
+            projectId: "FIREBASE_PROJECT_ID",
+            storageBucket: "FIREBASE_STORAGE_BUCKET",
+            messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+            appId: "FIREBASE_APP_ID"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <div class="header" style="margin-right: 15px;">
+        <div class="header_wrap">
+            <div class="header_content">
+                <img src="/images/5572662.png" style="width: 80px; margin-top: 8px; padding-right: 10px;">
+                <h1 style="margin-top: 19px; font-size: 27px; color: #f4511e; font-weight: bold;"><a href="/"
+                        style="color: #f4511e; text-decoration: none;">ON</a></h1>
+            </div>
+
+            <div class="header_content">
+                <a href="/myprofile.html">
+                    <button type="submit" class="basket_button"><i class="fa-solid fa-cart-shopping"></i></button>
+                </a>
+
+                <a href="/myprofile.html">
+                    <button type="submit" class="login_button"><i class="fa-solid fa-user"></i></button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-3">
+        <input type="text" class="form-control mt-2" id="title" placeholder="제품 이름" style="margin-bottom: 30px;">
+        <textarea class="form-control mt-2" id="content" placeholder="제품 설명" style="margin-bottom: 30px;"></textarea>
+        <input type="text" class="form-control mt-2" id="address" placeholder="주소를 입력하세요" style="margin-bottom: 30px;">
+        <input type="number" class="form-control mt-2" id="price" placeholder="시작 가격" style="margin-bottom: 30px;">
+        <div class="date">
+            <label for="end-date">경매 종료일:</label>
+            <input type="date" class="form-control" id="end-date" style="margin-bottom: 30px;">
+        </div>
+
+        <p style="margin-top: 20px; margin-bottom: 30px; font-size: 20px; font-weight: 500;">사진을 3장 업로드 해주세요!</p>
+
+        <div class="image-upload-container mt-2">
+            <div class="image-upload">
+                <input class="form-control" type="file" id="image1" onchange="previewImages(event, 'preview1')">
+                <div class="image-preview mt-2" id="preview1"></div>
+            </div>
+
+            <div class="image-upload">
+                <input class="form-control" type="file" id="image2" onchange="previewImages(event, 'preview2')">
+                <div class="image-preview mt-2" id="preview2"></div>
+            </div>
+
+            <div class="image-upload">
+                <input class="form-control" type="file" id="image3" onchange="previewImages(event, 'preview3')">
+                <div class="image-preview mt-2" id="preview3"></div>
+            </div>
+        </div>
+
+        <button class="btn btn-danger mt-3" id="send">올리기</button>
+    </div>
+
+    <script>
+        function previewImages(event, previewId) {
+            var input = event.target;
+            var preview = document.getElementById(previewId);
+
+            // 이미지 미리보기 초기화
+            preview.innerHTML = '';
+
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imgContainer = document.createElement('div');
+                imgContainer.style.display = 'flex';  // 이미지 컨테이너를 flex로 설정
+                imgContainer.style.flexDirection = 'column';  // 세로로 정렬
+
+                var img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = "300px";
+                img.style.height = "220px";
+                img.style.objectFit = "cover";
+                img.style.borderRadius = "5px";
+                img.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+
+                imgContainer.appendChild(img);
+                preview.appendChild(imgContainer);
+
+                // 첫 번째 이미지일 경우 텍스트 추가
+                if (previewId === 'preview1') {
+                    var text = document.createElement('p');
+                    text.innerText = '메인 사진입니다.';
+                    text.style.fontSize = '16px';
+                    text.style.fontWeight = 'bold';
+                    text.style.marginTop = '10px';
+                    text.style.textAlign = 'center';  // 텍스트를 가운데 정렬
+                    imgContainer.appendChild(text);  // 텍스트를 이미지 컨테이너 내부에 추가
+                }
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    </script>
+
+    <script>
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        $('#send').click(function () {
+            var file1 = document.querySelector('#image1').files[0];
+            var file2 = document.querySelector('#image2').files[0];
+            var file3 = document.querySelector('#image3').files[0];
+
+            var storageRef = storage.ref();
+            var path1 = storageRef.child('images/' + file1.name);
+            var path2 = storageRef.child('images/' + file2.name);
+            var path3 = storageRef.child('images/' + file3.name);
+
+            var uploadTask1 = path1.put(file1);
+            var uploadTask2 = path2.put(file2);
+            var uploadTask3 = path3.put(file3);
+
+            Promise.all([uploadTask1, uploadTask2, uploadTask3]).then(() => {
+                Promise.all([
+                    path1.getDownloadURL(),
+                    path2.getDownloadURL(),
+                    path3.getDownloadURL()
+                ]).then((urls) => {
+
+                    var chatData = 0;
+                    var viewCount = 0;
+                    var bidCount = 0;
+
+                    // 사용자 정보 가져오기
+                    var uid = firebase.auth().currentUser.uid;
+                    var email = firebase.auth().currentUser.email;
+
+                    // Firestore에서 사용자 이름 가져오기
+                    db.collection('user-id').doc(uid).get().then((doc) => {
+                        if (doc.exists) {
+                            var 판매자_이름 = doc.data().name;
+
+                            var data = {
+                                채팅데이터: chatData,
+                                조회수: viewCount,
+                                입찰수: viewCount,
+                                상품명: $('#title').val(),
+                                시작가: $('#price').val(),
+                                내용: $('#content').val(),
+                                주소: $("#address").val(),
+                                경매종료시간: $('#end-date').val(),
+                                경매시작시간: new Date(),
+                                경매상태: "경매중",
+                                이미지1: urls[0],
+                                이미지2: urls[1],
+                                이미지3: urls[2],
+                                판매자id: uid,
+                                판매자이름: 판매자_이름,
+                                현재입찰가: $('#price').val(),
+                                현재입찰자: "",
+                                현재입찰자id: ""
+                            };
+
+                            // 데이터 업로드
+                            db.collection('auction').add(data).then(() => {
+                                window.location.href = '/auction.html';
+                            }).catch((error) => {
+                                console.error(error);
+                            });
+                        } else {
+                            console.error("사용자 이름을 찾을 수 없습니다.");
+                        }
+                    }).catch((error) => {
+                        console.error("사용자 이름을 가져오는 도중 오류가 발생했습니다:", error);
+                    });
+                });
+            }).catch((error) => {
+                console.error(error);
+            });
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+* {
+    font-family: "Noto Sans KR", sans-serif;
+    line-height: 1;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.frame {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+}
