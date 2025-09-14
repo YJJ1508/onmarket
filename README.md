@@ -58,7 +58,7 @@ ON-Market은 통합 중고 거래 사이트입니다.
   <tr>
     <td><img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/f9762069-0283-422c-9c64-a3b8dca1354d" /></td>
     <td><img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/c51b1c4e-37c0-4188-902f-953af03c7046" /></td>
-    <td><img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/0b1f13ff-3f76-4194-af65-3c4e8bf68ad9" /></td>
+    <td><img width="200" height="150" alt="image" src="https://github.com/user-attachments/assets/9b5f33d4-0ce9-48bf-bfd5-e2407767f0d3" /></td>
     <td><img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/f87b1601-9025-42cc-bbad-6a0b00a945f4" /></td>
   </tr>
   <tr>
@@ -126,6 +126,7 @@ ON-Market은 통합 중고 거래 사이트입니다.
 ## DB(Firebase)구조 🗃️ 
 <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/439b3604-9483-41f1-99b6-97c63e24e67f" />
 <img width="200" height="150" alt="image" src="https://github.com/user-attachments/assets/b451bb05-e0c7-4fb2-95fb-7cb91f6be935" />
+
 
 
 
